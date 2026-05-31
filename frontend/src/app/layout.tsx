@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "@/src/styles/globals.css";
 import { AuthProvider } from "@/src/features/auth/hooks/useAuth";
 import { getSession } from "@/src/lib/session";
 import { Toaster } from 'sonner';
