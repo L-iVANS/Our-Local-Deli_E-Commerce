@@ -85,7 +85,7 @@ export default function HeroB({ data }: { data: HeroData["versionB"] }) {
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-[100px] font-display font-black text-white leading-[0.95] mb-6 md:mb-8 tracking-tighter drop-shadow-lg">
               {headlinePart1} <br />
-              <span className="text-primary italic">{headlineItalic}</span>
+              <span className="text-accent italic">{headlineItalic}</span>
             </h1>
 
             <p className="text-white/80 text-sm md:text-lg lg:text-xl font-medium leading-relaxed mb-8 md:mb-12 max-w-sm drop-shadow-md">

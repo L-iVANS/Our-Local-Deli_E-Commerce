@@ -24,7 +24,7 @@ const ContactSection = () => {
 
             <div className="space-y-10 pt-4">
               <div className="flex items-center gap-6 group">
-                <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center text-primary transition-all group-hover:bg-primary group-hover:text-white shrink-0">
+                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-secondary transition-all group-hover:bg-primary group-hover:text-white shrink-0">
                   <MapPin size={24} />
                 </div>
                 <div>
@@ -33,7 +33,7 @@ const ContactSection = () => {
                 </div>
               </div>
               <div className="flex items-center gap-6 group">
-                <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center text-primary transition-all group-hover:bg-primary group-hover:text-white shrink-0">
+                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary transition-all group-hover:bg-primary group-hover:text-white shrink-0">
                   <Phone size={24} />
                 </div>
                 <div>
@@ -42,7 +42,7 @@ const ContactSection = () => {
                 </div>
               </div>
               <div className="flex items-center gap-6 group">
-                <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center text-primary transition-all group-hover:bg-primary group-hover:text-white shrink-0">
+                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary transition-all group-hover:bg-primary group-hover:text-white shrink-0">
                   <Mail size={24} />
                 </div>
                 <div>
@@ -51,7 +51,7 @@ const ContactSection = () => {
                 </div>
               </div>
               <div className="flex items-center gap-6 group">
-                <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center text-primary transition-all group-hover:bg-primary group-hover:text-white shrink-0">
+                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary transition-all group-hover:bg-primary group-hover:text-white shrink-0">
                   <Clock size={24} />
                 </div>
                 <div>

@@ -30,10 +30,10 @@ const ProductCatalog = ({ products }: { products: Product[] }) => {
     <section id="product-catalog" className="pt-12 pb-24 bg-white">
       <div className="container mx-auto px-6">
         <div className="flex flex-col items-center mb-16 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-display font-black text-primary text-center">
+          <h2 className="text-4xl md:text-5xl font-display font-black text-accent text-center">
             Product Catalog
           </h2>
-          <div className="w-16 h-[2px] bg-primary rounded-full opacity-30" />
+          <div className="w-16 h-0.5 bg-accent rounded-full opacity-30" />
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-10 md:gap-y-16">
@@ -64,7 +64,7 @@ const ProductCatalog = ({ products }: { products: Product[] }) => {
 
                 <p className="text-neutral-500 font-bold text-base mb-4 opacity-80">{product.price}</p>
                 <Button
-                  className="w-full mt-auto bg-primary hover:bg-red-800 text-white rounded-2xl py-6 h-auto text-base font-bold shadow-[0_10px_20px_rgba(200,16,46,0.15)] transition-all duration-300"
+                  className="w-full mt-auto bg-primary hover:opacity-90 text-white rounded-2xl py-6 h-auto text-base font-bold shadow-[0_10px_20px_rgba(10,58,43,0.15)] transition-all duration-300"
                 >
                   View Details
                 </Button>

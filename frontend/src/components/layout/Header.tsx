@@ -85,8 +85,8 @@ const Header = ({ forceTheme }: HeaderProps) => {
               href={link.href}
               onClick={(e) => handleAnchorClick(e, link.href)}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary flex items-center gap-1",
-                link.highlight ? "text-primary font-bold" : headerTextColor
+                "text-sm font-medium transition-colors hover:text-accent flex items-center gap-1",
+                link.highlight ? "text-accent font-bold" : headerTextColor
               )}
             >
               {link.name}
@@ -96,12 +96,12 @@ const Header = ({ forceTheme }: HeaderProps) => {
 
         {/* Actions */}
         <div className="flex items-center gap-5">
-          <button className={cn("transition-colors hover:text-primary", headerTextColor)}>
+          <button className={cn("transition-colors hover:text-accent", headerTextColor)}>
             <Search size={22} />
           </button>
-          <button className={cn("transition-colors hover:text-primary relative", headerTextColor)}>
+          <button className={cn("transition-colors hover:text-accent relative", headerTextColor)}>
             <ShoppingCart size={22} />
-            <span className="absolute -top-1 -right-1 bg-primary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
               0
             </span>
           </button>

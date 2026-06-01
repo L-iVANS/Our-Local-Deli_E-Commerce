@@ -290,7 +290,7 @@ const Hero = ({ data }: { data: HeroData["versionA"] }) => {
         </div>
       </div>
 
-      <div className="absolute right-0 top-1/4 w-[600px] h-[600px] bg-red-100/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
+      <div className="absolute right-0 top-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
     </section>
   );
 };

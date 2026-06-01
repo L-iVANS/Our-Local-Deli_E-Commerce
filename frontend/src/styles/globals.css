@@ -9,10 +9,10 @@ THEME QUICK EDITS
 - Scrollbar: update the scrollbar colors near the bottom to match the new primary color.
 */
 @theme inline {
-  --color-primary: #C8102E;
-  --color-secondary: #212121;
-  --color-accent: #FDFDFD;
-  --color-neutral: #555555;
+  --color-primary: #0A3A2B;
+  --color-secondary: #002B1D;
+  --color-accent: #A8844C;
+  --color-neutral: #A8844C;
   
   --font-sans: "Outfit", var(--font-geist-sans);
   --font-display: "Playfair Display", serif;
@@ -26,9 +26,9 @@ THEME QUICK EDITS
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #212121;
-  --primary: #C8102E;
+  --background: #F4F4F0;
+  --foreground: #0A3A2B;
+  --primary: #0A3A2B;
 }
 
 html {

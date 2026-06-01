@@ -14,10 +14,10 @@ const FeaturedOffers = () => {
       <div className="container mx-auto px-6">
         {/* Header */}
         <div className="flex flex-col items-center mb-16 space-y-4">
-          <h2 className="text-4xl md:text-5xl font-display font-black text-primary text-center tracking-tight uppercase">
+          <h2 className="text-4xl md:text-5xl font-display font-black text-accent text-center tracking-tight uppercase">
             Featured Offers
           </h2>
-          <div className="w-16 h-[3px] bg-primary rounded-full" />
+          <div className="w-16 h-0.75 bg-accent rounded-full" />
         </div>
 
         {/* Grid */}
@@ -71,7 +71,7 @@ const OfferCard = ({ offer, index }: { offer: FeaturedOfferCardData; index: numb
 
         {/* Top Discount Badge */}
         <div className="absolute top-4 left-4 z-20">
-          <div className="bg-primary text-white font-black text-xs md:text-sm px-4 py-2 rounded-full shadow-lg transform -rotate-2 group-hover:rotate-0 transition-transform">
+          <div className="bg-accent text-white font-black text-xs md:text-sm px-4 py-2 rounded-full shadow-lg transform -rotate-2 group-hover:rotate-0 transition-transform">
             {promo.discountLabel}
           </div>
         </div>
@@ -117,7 +117,7 @@ const OfferCard = ({ offer, index }: { offer: FeaturedOfferCardData; index: numb
           className="w-full mt-6 group/btn"
         >
           <Button
-            className="w-full bg-primary hover:bg-red-800 text-white rounded-xl py-4 h-auto text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/10 transition-all duration-300 flex items-center justify-center gap-2"
+            className="w-full bg-primary hover:opacity-90 text-white rounded-xl py-4 h-auto text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/10 transition-all duration-300 flex items-center justify-center gap-2"
           >
             <span>View Product</span>
             <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
