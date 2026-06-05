@@ -31,7 +31,7 @@ const ProductCatalog = ({ products }: { products: Product[] }) => {
       <div className="container mx-auto px-6">
         <div className="flex flex-col items-center mb-16 space-y-4">
           <h2 className="text-4xl md:text-5xl font-display font-black text-accent text-center">
-            Product Catalog
+            Our Products 
           </h2>
           <div className="w-16 h-0.5 bg-accent rounded-full opacity-30" />
         </div>

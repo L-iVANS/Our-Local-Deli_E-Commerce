@@ -4,11 +4,11 @@ import HeroSectionToggle from "@/src/features/public/components/sections/hero/He
 import CategoryStrip from "@/src/features/public/components/sections/CategoryStrip";
 import FeaturedSectionToggle from "@/src/features/public/components/sections/featured/FeaturedSectionToggle";
 import ProductCatalog from "@/src/features/public/components/sections/ProductsCatalog";
-import CategoryCarouselSection from "@/src/features/public/components/sections/CategoryCarouselSection";
+// import CategoryCarouselSection from "@/src/features/public/components/sections/CategoryCarouselSection";
 import ReviewsSection from "@/src/features/public/components/sections/ReviewSection";
 import AboutUsSection from "@/src/features/public/components/sections/AboutUsSection";
 import SocialsSection from "@/src/features/public/components/sections/SocialsSection";
-import OmegaStories from "@/src/features/public/components/sections/OmegaStories";
+import OmegaStories from "@/features/public/components/sections/LocalStories";
 import ContactSection from "@/src/features/public/components/sections/ContactSection";
 
 // Data Imports
@@ -28,8 +28,8 @@ export default function Home() {
       <FeaturedSectionToggle />
       <ProductCatalog products={productsData} />
 
-      
-      {categoryHighlightsData.map((highlight) => (
+      {/* Uncomment if needed for cards or social media videos */}
+      {/* {categoryHighlightsData.map((highlight) => (
         <CategoryCarouselSection 
           key={highlight.categoryId}
           id={highlight.categoryId}
@@ -39,7 +39,7 @@ export default function Home() {
           bgColor={highlight.bgColor}
           floatingImageScale={highlight.floatingImageScale}
         />
-      ))}
+      ))} */}
 
       <OmegaStories stories={blogsData} />
       <ReviewsSection reviews={reviewsData} />

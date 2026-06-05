@@ -4,15 +4,15 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, ShoppingCart, Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/src/lib/utils";
+import { usePathname } from "next/navigation";
 import { Logo } from "@/src/components/ui/Logo";
 
 const NavLinks = [
   { name: "Home", href: "/#hero" },
   { name: "Products", href: "/catalog" },
+  { name: "Local Stories", href: "/#local-stories" },
   { name: "About", href: "/#about-us" },
-  { name: "Omega Stories", href: "/#omega-stories" },
   { name: "Contact Us", href: "/#contact-us" },
-  { name: "Omega Affiliate", href: "/#glassware", highlight: true },
 ];
 
 interface HeaderProps {
@@ -23,6 +23,48 @@ const Header = ({ forceTheme }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [heroVersion, setHeroVersion] = useState<"A" | "B">("B");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname(); // ✅ Hook called inside component
+
+  // Active section tracking for scrollspy
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [activeSection, setActiveSection] = useState("hero");
+  const isActiveLink = (href: string) => {
+    if (href.startsWith("/#")) {
+      const sectionId = href.replace("/#", "");
+
+      return pathname === "/" && activeSection === sectionId;
+    }
+
+    return pathname === href;
+  };
+
+  // useEffect for scrollspy and hero version tracking
+  useEffect(() => {
+    const sections = ["hero", "about-us", "local-stories", "contact-us"];
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isNavigating) return;
+
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      {
+        threshold: 0.4,
+        rootMargin: "-100px 0px -40% 0px",
+      },
+    );
+
+    sections.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,7 +77,7 @@ const Header = ({ forceTheme }: HeaderProps) => {
 
     window.addEventListener("scroll", handleScroll);
     window.addEventListener("hero-version-change", handleVersionChange);
-    
+
     // Check initial version if possible (assuming B as default from toggle component)
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -44,18 +86,37 @@ const Header = ({ forceTheme }: HeaderProps) => {
   }, []);
 
   const isDarkHero = (forceTheme || heroVersion) === "B";
-  const headerTextColor = isScrolled ? "text-secondary" : (isDarkHero ? "text-white" : "text-secondary");
+  const headerTextColor = isScrolled
+    ? "text-secondary"
+    : isDarkHero
+      ? "text-white"
+      : "text-secondary";
 
-  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleAnchorClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
     if (href.startsWith("/#") && window.location.pathname === "/") {
       e.preventDefault();
+
       const id = href.replace("/#", "");
       const element = document.getElementById(id);
+
       if (element) {
-        // Use native scroll to avoid router delay
-        element.scrollIntoView({ behavior: "smooth" });
-        // Update hash in URL manually
+        setIsNavigating(true);
+
+        // Immediately highlight the clicked nav item
+        setActiveSection(id);
+
+        element.scrollIntoView({
+          behavior: "smooth",
+        });
+
         window.history.pushState(null, "", href);
+
+        setTimeout(() => {
+          setIsNavigating(false);
+        }, 1000); // adjust if needed
       }
     }
   };
@@ -63,16 +124,16 @@ const Header = ({ forceTheme }: HeaderProps) => {
   return (
     <header
       className={cn(
-        "fixed top-0 w-full z-[100] transition-all duration-300",
+        "fixed top-0 w-full z-100 transition-all duration-300",
         isScrolled
           ? "bg-white/80 backdrop-blur-xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] py-3"
-          : "bg-transparent py-5"
+          : "bg-transparent py-5",
       )}
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <Logo 
-          href="/" 
+        <Logo
+          href="/"
           white={!isScrolled && isDarkHero}
           className="transition-all duration-300"
         />
@@ -85,8 +146,8 @@ const Header = ({ forceTheme }: HeaderProps) => {
               href={link.href}
               onClick={(e) => handleAnchorClick(e, link.href)}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-accent flex items-center gap-1",
-                link.highlight ? "text-accent font-bold" : headerTextColor
+                "text-lg font-medium py-2 flex justify-between items-center transition-colors",
+                isActiveLink(link.href) ? "text-accent" : headerTextColor,
               )}
             >
               {link.name}
@@ -96,10 +157,20 @@ const Header = ({ forceTheme }: HeaderProps) => {
 
         {/* Actions */}
         <div className="flex items-center gap-5">
-          <button className={cn("transition-colors hover:text-accent", headerTextColor)}>
+          <button
+            className={cn(
+              "transition-colors hover:text-accent",
+              headerTextColor,
+            )}
+          >
             <Search size={22} />
           </button>
-          <button className={cn("transition-colors hover:text-accent relative", headerTextColor)}>
+          <button
+            className={cn(
+              "transition-colors hover:text-accent relative",
+              headerTextColor,
+            )}
+          >
             <ShoppingCart size={22} />
             <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
               0
@@ -123,7 +194,7 @@ const Header = ({ forceTheme }: HeaderProps) => {
               href={link.href}
               className={cn(
                 "text-lg font-medium py-2 border-b border-gray-50 flex justify-between items-center",
-                link.highlight ? "text-primary" : "text-secondary"
+                isActiveLink(link.href) ? "text-secondary" : "text-accent", // ✅ changed
               )}
               onClick={(e) => {
                 handleAnchorClick(e, link.href);

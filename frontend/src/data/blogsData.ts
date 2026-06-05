@@ -10,7 +10,7 @@ export const blogsData: BlogStory[] = [
   {
     id: 1,
     title: "Behind every home, there's a story",
-    excerpt: "Omega Houseware was built on the belief that every home deserves reliable and well-designed essentials. Discover how we've grown into a trusted provider across the Philippines.",
+    excerpt: "Our Local Deli was built on the belief that every home deserves reliable and well-designed essentials. Discover how we've grown into a trusted provider across the Philippines.",
     image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1600&auto=format&fit=crop",
 
     link: "#"

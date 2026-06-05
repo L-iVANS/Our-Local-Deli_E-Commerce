@@ -10,29 +10,29 @@ export type CategoryData = {
 
 export const categoriesData: CategoryData[] = [
   {
-    id: "glassware",
-    name: "GLASSWARE",
-    image: "https://images.unsplash.com/photo-1677338354607-e73fee0bccbb?q=80&w=3087&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    id: "frozen-meat",
+    name: "FROZEN MEAT",
+    image: "https://images.unsplash.com/photo-1625643269470-5d3e7b69fa34?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     iconName: "Wine",
   },
 
 
   {
-    id: "kitchenware",
-    name: "KITCHENWARE",
-    image: "https://images.unsplash.com/photo-1646285455104-17a46be2540f?q=80&w=997&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    id: "frozen-seafood",
+    name: "FROZEN SEAFOOD",
+    image: "https://plus.unsplash.com/premium_photo-1757479571362-e8807cfac237?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     iconName: "ChefHat",
   },
   {
-    id: "dinnerware",
-    name: "DINNERWARE",
-    image: "https://images.unsplash.com/photo-1774509623829-881b7946b8e0?q=80&w=3164&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    id: "ready-to-cook",
+    name: "READY TO COOK",
+    image: "https://images.unsplash.com/photo-1774101074569-b669d4fc207f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     iconName: "Soup",
   },
   {
-    id: "vacuum-flask",
-    name: "VACUUM FLASK",
-    image: "https://plus.unsplash.com/premium_photo-1673884222757-18da49c319f2?q=80&w=1036&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    id: "snacks",
+    name: "SNACKS",
+    image: "https://images.unsplash.com/photo-1665762520658-4b725e05c5f4?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     iconName: "Thermometer",
   }
 ];

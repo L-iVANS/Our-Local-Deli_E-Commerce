@@ -78,9 +78,8 @@ const Footer = () => {
             <h4 className="font-bold text-lg">Quick Links</h4>
             <ul className="space-y-4 text-white/70 text-sm font-medium">
               <li><Link href="/#about-us" className="hover:text-white transition-colors">About Us</Link></li>
-              <li><Link href="/#omega-stories" className="hover:text-white transition-colors">Omega Stories</Link></li>
+              <li><Link href="/#local-stories" className="hover:text-white transition-colors">Local Stories</Link></li>
               <li><Link href="/#contact-us" className="hover:text-white transition-colors">Contact Us</Link></li>
-              <li><Link href="/" className="hover:text-white transition-colors text-primary font-bold">Omega Affiliate</Link></li>
               <li><Link href="/b2b/login" className="hover:text-white transition-colors">B2B Portal</Link></li>
             </ul>
           </div>
@@ -105,7 +104,7 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-white/50 text-xs font-medium uppercase tracking-widest">
-          <p>© 2026 Omega Houseware. All rights reserved.</p>
+          <p>© 2026 Our Local Del. All rights reserved.</p>
           <div className="flex gap-8 items-center lowercase font-sans">
             <Link href="mailto:hello@omegahouseware.com" className="hover:text-white transition-colors">hello@omegahouseware.com</Link>
             <span className="w-1 h-1 bg-white/20 rounded-full" />

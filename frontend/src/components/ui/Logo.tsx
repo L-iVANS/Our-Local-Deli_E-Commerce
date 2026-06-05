@@ -15,7 +15,7 @@ export function Logo({ href, className, white }: LogoProps) {
     <Link href={href} className={cn("flex-shrink-0 select-none", className)}>
       <Image 
         src={omegaLogo}
-        alt="Omega Logo"
+        alt="Our Local Deli"
         width={120}
         height={40}
         className={cn(

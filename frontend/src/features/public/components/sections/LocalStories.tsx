@@ -7,11 +7,11 @@ import { BlogStory } from "@/src/data/blogsData";
 
 const OmegaStories = ({ stories }: { stories: BlogStory[] }) => {
   return (
-    <section id="omega-stories" className="py-12 md:py-24 bg-[#212121] text-white overflow-hidden">
+    <section id="local-stories" className="py-12 md:py-24 bg-[#212121] text-white overflow-hidden">
       <div className="container mx-auto px-4 md:px-8">
         <div className="mb-10 md:mb-16">
           <h2 className="text-3xl md:text-5xl font-display font-black">
-            Omega Stories
+            Our Local Deli Stories
           </h2>
         </div>
 

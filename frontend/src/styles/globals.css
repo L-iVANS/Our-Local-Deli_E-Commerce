@@ -108,9 +108,9 @@ section[aria-label*="Notifications"] {
   background: #f1f1f1;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C8102E;
+  background: var(--color-primary);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a00d25;
+  background: var(--color-secondary);
 }
