@@ -1,4 +1,4 @@
-"use client";
+  "use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -6,6 +6,8 @@ import { Search, ShoppingCart, Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/src/components/ui/Logo";
+
+
 
 const NavLinks = [
   { name: "Home", href: "/#hero" },
@@ -19,7 +21,14 @@ interface HeaderProps {
   forceTheme?: "A" | "B";
 }
 
+
 const Header = ({ forceTheme }: HeaderProps) => {
+
+  // UI-only build: cart backend not wired yet.
+  // TODO: replace placeholder with real cart context/provider when backend is ready.
+  const itemCount = 0;
+
+
   const [isScrolled, setIsScrolled] = useState(false);
   const [heroVersion, setHeroVersion] = useState<"A" | "B">("B");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -171,7 +180,25 @@ const Header = ({ forceTheme }: HeaderProps) => {
               headerTextColor,
             )}
           >
-            <ShoppingCart size={22} />
+            {/* Cart - always visible */}
+            <div className="relative">
+              <Link
+                href="/consumer/cart"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors"
+              >
+                <ShoppingCart size={15} />
+                <span className="hidden sm:inline">Cart</span>
+              </Link>
+              {itemCount > 0 && (
+                <span
+                  className="absolute -top-2 -right-1 w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center"
+                  style={{ backgroundColor: "#e11d48" }}
+
+                >
+                  {itemCount > 9 ? "9+" : itemCount}
+                </span>
+              )}
+            </div>
             <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
               0
             </span>
