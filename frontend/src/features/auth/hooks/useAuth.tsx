@@ -1,7 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import type { SessionUser } from "@/src/lib/session";
+import type { SessionUser } from "@/lib/session";
+import { QueryClient } from "@tanstack/react-query";
 
 export interface CompanyProfile {
   userId: number;
@@ -59,6 +60,8 @@ export function AuthProvider({
     initialSession ? createCompanyProfileFromSession(initialSession) : null
   );
 
+  const queryClient = new QueryClient();
+
   useEffect(() => {
     if (!initialSession) return;
 
@@ -80,9 +83,10 @@ export function AuthProvider({
   const logout = () => {
     setIsLoggedIn(false);
     setCompany(null);
-    // Clear user-specific data from localStorage
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("omega_b2b_cart_items");
+    queryClient.clear();
+    
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('cart_items');
     }
   };
 

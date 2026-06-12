@@ -4,6 +4,7 @@ import "@/src/styles/globals.css";
 import { AuthProvider } from "@/src/features/auth/hooks/useAuth";
 import { getSession } from "@/src/lib/session";
 import { Toaster } from 'sonner';
+import QueryProvider from "../features/providers/QueryProvider";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -33,9 +34,11 @@ export default async function RootLayout({
           position="top-right"
           richColors
         />
-        <AuthProvider initialSession={session}>
-          {children}
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider initialSession={session}>
+            {children}
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

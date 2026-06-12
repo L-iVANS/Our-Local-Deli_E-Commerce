@@ -1,0 +1,55 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+.backdrop {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.backdrop--closing {
+  animation: fadeOut 0.2s ease-out forwards;
+}
+
+.modal {
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal--closing {
+  animation: slideDown 0.2s ease-out forwards;
+}

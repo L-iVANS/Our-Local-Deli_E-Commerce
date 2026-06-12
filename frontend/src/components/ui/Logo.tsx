@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/src/lib/utils";
 
-const omegaLogo = "/assets/omega_logo_456x150_1_456x150.png";
+const omegaLogo = "../../assets/omega_logo.png";
 
 interface LogoProps {
   href: string;
