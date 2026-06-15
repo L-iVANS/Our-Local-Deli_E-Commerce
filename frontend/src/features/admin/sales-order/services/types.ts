@@ -67,3 +67,4 @@ export interface TransitionAdminOrderStatusInput {
 export interface CancelOrderInput {
   orderId: number;
 }
+

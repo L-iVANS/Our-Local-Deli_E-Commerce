@@ -15,7 +15,7 @@ export class ProductsTbl {
   @Column()
   declare productName: string;
 
-  @Column('longtext')
+  @Column('text')
   declare productDescription: string;
 
   @Column({ type: 'varchar', length: 500, nullable: true })

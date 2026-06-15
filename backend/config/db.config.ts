@@ -18,15 +18,15 @@ export const DatabaseConfig = TypeOrmModule.forRootAsync({
   imports: [ConfigModule],
   inject: [ConfigService],
   useFactory: (config: ConfigService) => ({
-    type: 'mysql',
+    type: 'postgres',
     host: config.get<string>('DB_HOST') ?? 'localhost',
-    port: Number(config.get<string>('DB_PORT') ?? '3306'),
-    username: config.get<string>('DB_USER') ?? config.get<string>('MYSQL_USER') ?? 'root',
+    port: Number(config.get<string>('DB_PORT') ?? '5432'),
+    username: config.get<string>('DB_USER') ?? config.get<string>('POSTGRES_USER') ?? 'postgres',
     password:
       config.get<string>('DB_PASSWORD') ??
-      config.get<string>('MYSQL_PASSWORD') ??
-      config.get<string>('MYSQL_ROOT_PASSWORD'),
-    database: config.get<string>('DB_NAME') ?? config.get<string>('MYSQL_DATABASE'),
+      config.get<string>('POSTGRES_PASSWORD') ??
+      config.get<string>('POSTGRES_ROOT_PASSWORD'),
+    database: config.get<string>('DB_NAME') ?? config.get<string>('POSTGRES_DATABASE'),
     entities: [
       UsersTbl,
       OrdersTbl,
