@@ -1,13 +1,11 @@
-  "use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, ShoppingCart, Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { usePathname } from "next/navigation";
-import { Logo } from "@/src/components/ui/Logo";
-
-
+// import { Logo } from "@/src/components/ui/Logo";
 
 const NavLinks = [
   { name: "Home", href: "/#hero" },
@@ -21,13 +19,10 @@ interface HeaderProps {
   forceTheme?: "A" | "B";
 }
 
-
 const Header = ({ forceTheme }: HeaderProps) => {
-
   // UI-only build: cart backend not wired yet.
   // TODO: replace placeholder with real cart context/provider when backend is ready.
   const itemCount = 0;
-
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [heroVersion, setHeroVersion] = useState<"A" | "B">("B");
@@ -139,33 +134,32 @@ const Header = ({ forceTheme }: HeaderProps) => {
           : "bg-transparent py-5",
       )}
     >
-      <div className="container mx-auto px-6 flex items-center justify-between">
-        {/* Logo */}
-        <Logo
-          href="/"
-          white={!isScrolled && isDarkHero}
-          className="transition-all duration-300"
-        />
+      <div className="container mx-auto px-6 flex items-center">
+        {/* Reserved Logo Space */}
+        <div className="w-48 shrink-0">{/* Empty until logo is ready */}</div>
 
         {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-8">
-          {NavLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              onClick={(e) => handleAnchorClick(e, link.href)}
-              className={cn(
-                "text-lg font-medium py-2 flex justify-between items-center transition-colors",
-                isActiveLink(link.href) ? "text-accent" : headerTextColor,
-              )}
-            >
-              {link.name}
-            </Link>
-          ))}
-        </nav>
+        {/* Center Navigation */}
+        <div className="flex-1 flex justify-center">
+          <nav className="hidden lg:flex items-center gap-8">
+            {NavLinks.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={(e) => handleAnchorClick(e, link.href)}
+                className={cn(
+                  "text-lg font-medium py-2 transition-colors",
+                  isActiveLink(link.href) ? "text-accent" : headerTextColor,
+                )}
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
+        </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-5">
+        <div className="w-48 shrink-0 flex justify-end items-center gap-5">
           <button
             className={cn(
               "transition-colors hover:text-accent",
@@ -184,16 +178,14 @@ const Header = ({ forceTheme }: HeaderProps) => {
             <div className="relative">
               <Link
                 href="/consumer/cart"
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-medium text-#ffffff-700 hover:border-gray-300 transition-colors"
               >
                 <ShoppingCart size={15} />
-                <span className="hidden sm:inline">Cart</span>
               </Link>
               {itemCount > 0 && (
                 <span
                   className="absolute -top-2 -right-1 w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center"
                   style={{ backgroundColor: "#e11d48" }}
-
                 >
                   {itemCount > 9 ? "9+" : itemCount}
                 </span>

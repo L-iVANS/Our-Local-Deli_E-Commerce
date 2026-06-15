@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { RED } from "../../../../data/constants";
 import type { Product } from "../../../../data/products";
 import {
   getProductPrice,

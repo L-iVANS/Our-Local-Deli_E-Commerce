@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Mail, Phone, MapPin, Truck, Store, ShieldCheck, ChevronRight } from "lucide-react";
-import { Logo } from "@/src/components/ui/Logo";
+// import { Logo } from "@/src/components/ui/Logo";
 
 const Footer = () => {
   return (
@@ -43,7 +43,7 @@ const Footer = () => {
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
           <div className="space-y-8">
-            <Logo href="/" white className="mb-6 block" />
+            {/* <Logo href="/" white className="mb-6 block" /> */}
             <p className="text-white/80 text-sm leading-relaxed max-w-sm line-clamp-4">
               Dedicated to bringing quality to houseware in every Filipino kitchen since 1985. We believe in modern tools that preserve traditional culinary excellence.
             </p>
