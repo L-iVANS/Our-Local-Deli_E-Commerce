@@ -9,9 +9,7 @@ import { cn } from "@/lib/utils";
 interface Product {
   productId: number | string;
   productName: string;
-  category: {
-    categoryName: string;
-  };
+  category: string;
   productPrice: number;
   imageUrl?: string;
   // Mocked fields for demo
@@ -77,7 +75,11 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
       {/* Details */}
       <div className="flex flex-col grow">
         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-2">
-          {product.category?.categoryName || "Houseware"}
+          {product.category
+            ? product.category
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, (c) => c.toUpperCase())
+            : null}
         </span>
 
         <h3 className="text-lg md:text-xl font-bold text-secondary font-display mb-2 group-hover:text-primary transition-colors line-clamp-2 leading-[1.2]">

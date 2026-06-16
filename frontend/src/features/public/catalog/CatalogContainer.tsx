@@ -39,11 +39,6 @@ const CatalogContainer = () => {
   } = useCatalogProducts();
 
   // Fallback Logic
-  const normalize = (val: any) =>
-    String(val ?? "")
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .trim();
 
   const products = useMemo((): Product[] => {
     const source =
@@ -53,15 +48,20 @@ const CatalogContainer = () => {
 
     return source.map(
       (p: any): Product => ({
-        id: p.productId ?? p.id,
-        name: p.productName ?? p.name,
-        price:
+        productId: p.productId ?? p.id,
+        productName: p.productName ?? p.name,
+        productPrice:
           typeof p.productPrice === "string"
             ? parseFloat(p.productPrice.replace(/[₱,]/g, ""))
-            : (p.productPrice ?? p.price),
+            : typeof p.price === "string"
+              ? parseFloat(p.price.replace(/[₱,]/g, ""))
+              : (p.productPrice ?? p.price ?? 0),
         retailPrice: p.retailPrice ?? p.productPrice ?? p.price,
         imageUrl: p.imageUrl ?? p.image,
-        category: normalize(p.categoryId ?? p.category ?? p.categoryName),
+        category: String(p.categoryId ?? p.category ?? p.categoryName ?? "")
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .trim(),
         rating: p.rating ?? 0,
         description: p.productDescription ?? p.description ?? "",
       }),
@@ -72,19 +72,15 @@ const CatalogContainer = () => {
   const categories = useMemo(() => {
     const map = new Map<string, { id: string; name: string; slug: string }>();
 
-    products.forEach((p: any) => {
-      const rawCategory = p.categoryId ?? p.category ?? p.categoryName;
+    products.forEach((p: Product) => {
+      const raw = p.category; // already normalized slug
+      if (!raw) return;
 
-      if (!rawCategory) return;
-
-      const id = String(rawCategory).trim();
-      const name = String(rawCategory).trim();
-
-      if (!map.has(id)) {
-        map.set(id, {
-          id,
-          name,
-          slug: name.toLowerCase().replace(/\s+/g, "-"),
+      if (!map.has(raw)) {
+        map.set(raw, {
+          id: raw,
+          name: raw, // ideally you'd titlecase this
+          slug: raw,
         });
       }
     });
@@ -128,26 +124,24 @@ const CatalogContainer = () => {
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
-    // Search
     if (searchTerm) {
-      result = result.filter((p: any) =>
+      result = result.filter((p) =>
         p.productName.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
-    // Category
-
     if (selectedCategoryId) {
-      result = result.filter((p: Product) => p.category === selectedCategoryId);
+      result = result.filter((p) => p.category === selectedCategoryId);
     }
 
-    // Sort
     if (sortBy === "Price: Low → High") {
-      result.sort((a: any, b: any) => a.productPrice - b.productPrice);
+      result.sort((a, b) => a.productPrice - b.productPrice); // ✅ was using p.productPrice on old shape
     } else if (sortBy === "Price: High → Low") {
-      result.sort((a: any, b: any) => b.productPrice - a.productPrice);
+      result.sort((a, b) => b.productPrice - a.productPrice);
     } else if (sortBy === "Best Rated") {
-      result.sort((a: any, b: any) => (b.productId % 5) - (a.productId % 5));
+      result.sort(
+        (a, b) => (Number(b.productId) % 5) - (Number(a.productId) % 5),
+      );
     }
 
     return result;

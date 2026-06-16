@@ -7,9 +7,7 @@ import { Button } from "../../../../components/ui/Button";
 interface Product {
   productId: number | string;
   productName: string;
-  category: {
-    categoryName: string;
-  };
+  category: string;
   productPrice: number;
   imageUrl?: string;
   available?: number | string;
@@ -39,7 +37,7 @@ const CatalogProductListItem: React.FC<CatalogProductListItemProps> = ({
           alt={product.productName}
           className="w-full h-full object-contain drop-shadow-md transition-transform duration-500 group-hover:scale-110"
           onError={(e) => {
-             (e.target as HTMLImageElement).src = "/assets/placeholder.png";
+            (e.target as HTMLImageElement).src = "/assets/placeholder.png";
           }}
         />
       </div>
@@ -47,7 +45,11 @@ const CatalogProductListItem: React.FC<CatalogProductListItemProps> = ({
       {/* Info */}
       <div className="flex-grow min-w-0">
         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-1 block">
-          {product.category?.categoryName || "Houseware"}
+          {product.category
+            ? product.category
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, (c) => c.toUpperCase())
+            : null}
         </span>
         <h3 className="text-lg md:text-xl font-bold text-secondary font-display group-hover:text-primary transition-colors truncate">
           {product.productName}
@@ -59,9 +61,7 @@ const CatalogProductListItem: React.FC<CatalogProductListItemProps> = ({
         <p className="text-xl md:text-2xl font-black text-secondary">
           ₱{new Intl.NumberFormat().format(product.productPrice)}
         </p>
-        <Button 
-          className="rounded-xl h-[40px] px-6 bg-primary hover:bg-red-800 text-white border-none normal-case tracking-normal font-bold shadow-md shadow-primary/20"
-        >
+        <Button className="rounded-xl h-[40px] px-6 bg-primary hover:bg-red-800 text-white border-none normal-case tracking-normal font-bold shadow-md shadow-primary/20">
           View
         </Button>
       </div>

@@ -1,14 +1,15 @@
 export interface Product {
-  id: string | number;
-  name: string;
-  price: number;
-  retailPrice: number;
-  image?: string;
+  productId: number | string;
+  productName: string;
+  productPrice: number;
+  retailPrice?: number;
   imageUrl?: string;
-  category: string;
-  rating: number;
+  category: string;        // normalized slug for filtering
+  categoryId?: string;
+  rating?: number;
   description?: string;
 }
+
 
 export interface Category {
   id: string;
@@ -42,12 +43,12 @@ export interface Review {
 // This is only for static homepage sections
 export const products: Product[] = [
   {
-    id: "p1",
-    name: "Premium Ceramic Tiles",
-    price: 4500,
+    productId : "p1",
+    productName: "Premium Ceramic Tiles",
+    productPrice: 4500,
     retailPrice: 4500,
     category: "Ceramics",
-    image: "/placeholder-product.jpg",
+    imageUrl: "/placeholder-product.jpg",
     rating: 4.8,
     description: "High-quality ceramic tiles for commercial use",
   },
