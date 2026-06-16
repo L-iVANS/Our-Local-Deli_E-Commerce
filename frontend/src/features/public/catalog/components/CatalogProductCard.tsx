@@ -79,7 +79,7 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
             ? product.category
                 .replace(/-/g, " ")
                 .replace(/\b\w/g, (c) => c.toUpperCase())
-            : null}
+            : "Houseware"}
         </span>
 
         <h3 className="text-lg md:text-xl font-bold text-secondary font-display mb-2 group-hover:text-primary transition-colors line-clamp-2 leading-[1.2]">
@@ -109,7 +109,7 @@ const CatalogProductCard: React.FC<CatalogProductCardProps> = ({
             ₱{new Intl.NumberFormat().format(product.productPrice)}
           </p>
 
-          <Button className="rounded-2xl h-10 md:h-12 px-4 md:px-6 bg-[#FFEBEB] text-primary hover:bg-primary hover:text-white shadow-none border-none normal-case tracking-normal font-bold text-sm md:text-base flex items-center justify-center gap-2 group/btn transition-all duration-300">
+          <Button className="rounded-2xl h-10 md:h-12 px-4 md:px-6 bg-[#ffffff] text-primary hover:bg-primary hover:text-white shadow-none border border-1 border-primary normal-case tracking-normal font-bold text-sm md:text-base flex items-center justify-center gap-2 group/btn transition-all duration-300">
             <ArrowRight
               size={16}
               className="md:size-4.5 transition-transform group-hover/btn:translate-x-1"
