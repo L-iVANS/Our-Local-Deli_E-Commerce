@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
-import { RED, RED_LIGHT } from "../../../../data/constants";
+
 
 interface PageHeaderProps {
   activeCategory: string;

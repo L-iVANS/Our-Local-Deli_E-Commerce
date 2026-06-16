@@ -28,7 +28,7 @@ const ViewToggle: React.FC<ViewToggleProps> = ({
   return (
     <div className="flex flex-col gap-4 md:gap-6 bg-white p-4 md:p-8 rounded-[32px] border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.02)]">
       {/* Price Type Segments */}
-      <div className="flex items-center gap-2 md:gap-4">
+      {/* <div className="flex items-center gap-2 md:gap-4">
           <div className="flex p-1 md:p-1.5 bg-neutral-100 rounded-2xl gap-1">
             {priceTypes.map((type) => (
               <button
@@ -45,7 +45,7 @@ const ViewToggle: React.FC<ViewToggleProps> = ({
               </button>
             ))}
           </div>
-      </div>
+      </div> */}
 
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 md:gap-4 w-full">
         {/* Sorting Dropdown */}

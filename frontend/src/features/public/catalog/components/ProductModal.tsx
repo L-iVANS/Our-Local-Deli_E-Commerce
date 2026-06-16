@@ -154,7 +154,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
               </div>
 
               {/* Price Tier Selector */}
-              <div className="bg-neutral-50 p-1 rounded-xl flex mb-6">
+              {/* <div className="bg-neutral-50 p-1 rounded-xl flex mb-6">
                 {["Retail", "Wholesale", "Bulk"].map((tier) => (
                   <button
                     key={tier}
@@ -169,7 +169,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     {tier}
                   </button>
                 ))}
-              </div>
+              </div> */}
 
               {/* Price Card */}
               <div className="bg-white border border-neutral-100 rounded-[24px] p-6 mb-8 shadow-sm text-center">
@@ -184,7 +184,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
               </p>
 
               {/* Color Selector */}
-              <div className="mb-10">
+              {/* <div className="mb-10">
                 <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-3">
                   Color
                 </p>
@@ -204,7 +204,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                     </button>
                   ))}
                 </div>
-              </div>
+              </div> */}
 
               {/* Delivery Options Section */}
               <div className="mb-10 border-t border-neutral-100 pt-8">
@@ -268,7 +268,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
               {/* Combined Action Section */}
               <div className="p-4 md:p-6 flex flex-col md:flex-row items-center justify-end gap-6">
-                <Button className="w-full md:w-auto h-auto py-4 px-10 rounded-2xl text-sm font-black bg-primary hover:bg-red-800 shadow-xl shadow-primary/10 flex items-center justify-center gap-3 group shrink-0">
+                <Button className="w-full md:w-auto h-auto py-4 px-10 rounded-2xl text-sm font-black bg-primary hover:bg-accent shadow-xl shadow-primary/10 flex items-center justify-center gap-3 group shrink-0">
                   <LogIn
                     size={18}
                     className="transition-transform group-hover:translate-x-1"
