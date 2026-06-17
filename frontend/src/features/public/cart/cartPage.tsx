@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-// import { useCartLogic } from "./hooks/useCartLogic";
+import { useCartLogic } from "./hooks/useCartLogic";
 import {
   CartEmpty,
   CartItems,
@@ -9,62 +9,61 @@ import {
   OrderConfirmModal,
 } from "./components/index";
 import { PaymongoCheckoutModal } from "@/features/consumer/checkout/index";
-import { CART_COLORS } from "./constants/index";
 
 export function Cart() {
   const router = useRouter();
-  // const {
-  //   company,
-  //   items,
-  //   selectedItems,
-  //   selectedItemIds,
-  //   itemCount,
-  //   selectedItemCount,
-  //   selectedSubtotal,
-  //   tier,
-  //   showModal,
-  //   setShowModal,
-  //   delivery,
-  //   setDelivery,
-  //   confirmed,
-  //   setConfirmed,
-  //   errors,
-  //   setErrors,
-  //   placing,
-  //   selectedMoqWarnings,
-  //   orderId,
-  //   orderNumber,
-  //   paymentTrigger,
-  //   resetPaymentTrigger,
-  //   hasSelectedItems,
-  //   handlePlaceOrder,
-  //   handleCloseModal,
-  //   onUpdateQty,
-  //   onRemoveItem,
-  //   onToggleItemSelection,
-  // } = useCartLogic();
+  const {
+    company,
+    items,
+    selectedItems,
+    selectedItemIds,
+    itemCount,
+    selectedItemCount,
+    selectedSubtotal,
+    tier,
+    showModal,
+    setShowModal,
+    delivery,
+    setDelivery,
+    confirmed,
+    setConfirmed,
+    errors,
+    setErrors,
+    placing,
+    selectedMoqWarnings,
+    orderId,
+    orderNumber,
+    paymentTrigger,
+    resetPaymentTrigger,
+    hasSelectedItems,
+    handlePlaceOrder,
+    handleCloseModal,
+    onUpdateQty,
+    onRemoveItem,
+    onToggleItemSelection,
+  } = useCartLogic();
 
-  // console.log("[cartPage] paymentTrigger:", paymentTrigger);
-  // console.log("[cartPage] About to render OrderConfirmModal with paymentTrigger:", paymentTrigger, "showModal:", showModal);
+  console.log("[cartPage] paymentTrigger:", paymentTrigger);
+  console.log("[cartPage] About to render OrderConfirmModal with paymentTrigger:", paymentTrigger, "showModal:", showModal);
 
-  // if (!company) return null;
-  // if (items.length === 0 && !paymentTrigger) return <CartEmpty />;
+  if (!company) return null;
+  if (items.length === 0 && !paymentTrigger) return <CartEmpty />;
 
-  // if (paymentTrigger) {
-  //   console.log("[cartPage] ⭐ RENDER CONDITION TRUE - About to render PaymongoCheckoutModal");
-  // }
+  if (paymentTrigger) {
+    console.log("[cartPage] ⭐ RENDER CONDITION TRUE - About to render PaymongoCheckoutModal");
+  }
 
-  // const deliveryFee = selectedSubtotal >= 1500 ? 0 : 350;
-  // const currentGrandTotal = selectedSubtotal + deliveryFee;
-  // const payableAmount = paymentTrigger?.orderAmount ?? currentGrandTotal;
+  const deliveryFee = selectedSubtotal >= 1500 ? 0 : 350;
+  const currentGrandTotal = selectedSubtotal + deliveryFee;
+  const payableAmount = paymentTrigger?.orderAmount ?? currentGrandTotal;
 
-  // const handlePaymongoClose = () => {
-  //   console.log("[cartPage] PayMongo modal closed");
-  //   resetPaymentTrigger();
-  //   setShowModal(false);
-  //   // Redirect to Processing section of orders
-  //   router.push("/b2b/my-orders?tab=Processing");
-  // };
+  const handlePaymongoClose = () => {
+    console.log("[cartPage] PayMongo modal closed");
+    resetPaymentTrigger();
+    setShowModal(false);
+    // Redirect to Processing section of orders
+    router.push("/b2b/my-orders?tab=Processing");
+  };
 
   return (
     <div
@@ -72,7 +71,7 @@ export function Cart() {
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       {/* PayMongo Modal - Render at top level, not inside OrderConfirmModal */}
-      {/* {paymentTrigger && (
+      {paymentTrigger && (
         <PaymongoCheckoutModal
           isOpen={true}
           orderId={paymentTrigger.orderId}
@@ -85,7 +84,7 @@ export function Cart() {
             setShowModal(false);
           }}
         />
-      )} */}
+      )}
 
       {/* Header */}
       <div className="bg-white border-b border-gray-100 py-6 px-4">
@@ -122,7 +121,7 @@ export function Cart() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* <CartItems
+        <CartItems
           items={items}
           company={company}
           moqWarnings={selectedMoqWarnings}
@@ -130,9 +129,9 @@ export function Cart() {
           onUpdateQty={onUpdateQty}
           onRemoveItem={onRemoveItem}
           onToggleItemSelection={onToggleItemSelection}
-        /> */}
+        />
 
-        {/* <CartSummary
+        <CartSummary
           items={selectedItems}
           company={company}
           subtotal={selectedSubtotal}
@@ -140,10 +139,10 @@ export function Cart() {
           hasSelectedItems={hasSelectedItems}
           onProceed={() => hasSelectedItems && setShowModal(true)}
         />
-          */}
+         
       </div>
 
-      {/* <OrderConfirmModal
+      <OrderConfirmModal
         key={`modal-${paymentTrigger?.orderId || 'initial'}`}
         isOpen={showModal && !paymentTrigger}
         onClose={handleCloseModal}
@@ -173,7 +172,7 @@ export function Cart() {
         onPlaceOrder={handlePlaceOrder}
         orderId={undefined}
         orderNumber={undefined}
-      /> */}
+      />
     </div>
   );
 }

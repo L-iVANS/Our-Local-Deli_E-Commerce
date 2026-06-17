@@ -24,6 +24,9 @@ export interface CartItem {
   selectedColor?: string;
   selectedSize?: string;
 }
+export interface CartResponse {
+  items: CartItem[];
+}
 
 export interface Company {
   userId?: number;
@@ -44,4 +47,5 @@ export interface Company {
   tier?: string;
   id?: string;
 }
+
 
