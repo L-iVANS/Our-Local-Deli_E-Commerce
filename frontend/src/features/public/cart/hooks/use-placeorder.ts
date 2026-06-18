@@ -1,23 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+// src/features/public/cart/hooks/use-placeorder.ts
 
-export const useAddToCart = () => {
-  const queryClient = useQueryClient();
+import { useMutation } from '@tanstack/react-query';
+import { placeOrderService, PlaceOrderPayload } from '../services/mutation';
 
+export const usePlaceOrder = () => {
   return useMutation({
-    mutationFn: async (payload: {
-      productId: number;
-      quantity: number;
-    }) => {
-      return await api.post("cart", {
-        json: payload,
-      }).json();
-    },
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["cart"],
-      });
-    },
+    mutationFn: (payload: PlaceOrderPayload) =>
+      placeOrderService.placeOrder(payload),
   });
 };

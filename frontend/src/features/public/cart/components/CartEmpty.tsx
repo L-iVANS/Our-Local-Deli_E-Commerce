@@ -28,11 +28,11 @@ export function CartEmpty() {
         Browse the catalog and add products to start building your order.
       </p>
       <div className="flex gap-3">
-          <Link href="/b2b/home" className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:border-gray-300 transition-colors">
+          <Link href="/#hero" className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:border-gray-300 transition-colors">
           Back to Home
         </Link>
           <Link
-            href="/b2b/products"
+            href="/catalog"
           className="px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2"
           style={{ backgroundColor: RED }}
         >

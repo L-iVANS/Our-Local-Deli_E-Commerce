@@ -1,42 +1,41 @@
-import { useEffect, useState } from "react";
-import { useQuery } from "@apollo/client/react";
-import { useAuth } from "@/features/auth/hooks/useAuth";
-import { GET_ME, ReadProfileData } from "@/features/auth/services/query";
-import { Company } from "../types";
+// src/features/public/cart/hooks/useEnrichedCompanyProfile.ts
+
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { profileService } from '@/features/auth/services/profile-service';
+import { Company } from '../types';
 
 /**
- * Hook to fetch and enrich company profile with full data including address
- * This ensures address from the database is available for delivery forms
+ * Hook to fetch and enrich company profile with full data including address.
+ * Replaces the previous Apollo GraphQL GET_ME query with a REST call to GET /users/profile.
+ * The auth context only carries session-level data (userId, email, role).
+ * This hook fills in the missing fields: address, companyName, phoneNumber, fullName.
  */
 export const useEnrichedCompanyProfile = () => {
   const { company: authCompany } = useAuth();
-  const [enrichedCompany, setEnrichedCompany] = useState<Company | null>(authCompany || null);
 
-  // Fetch full profile data from backend
-  const { data: profileData, loading } = useQuery<ReadProfileData>(GET_ME, {
-    skip: !authCompany?.userId,
+  const { data: profileData, isLoading } = useQuery({
+    queryKey: ['user-profile', authCompany?.userId],
+    queryFn: profileService.getProfile,
+    enabled: !!authCompany?.userId,  // only fetch if user is logged in
+    staleTime: 5 * 60 * 1000,        // cache for 5 minutes — profile rarely changes
   });
 
-  useEffect(() => {
-    if (!authCompany) {
-      setEnrichedCompany(null);
-      return;
-    }
+  // If no auth session, return null immediately
+  if (!authCompany) {
+    return { company: null, loading: false };
+  }
 
-    // If we have full profile data, merge it with auth company
-    if (profileData?.readProfile) {
-      setEnrichedCompany({
-        ...authCompany,
-        address: profileData.readProfile.address || authCompany.address || "",
-        companyName: profileData.readProfile.companyName || authCompany.companyName || "",
-        phoneNumber: profileData.readProfile.phoneNumber || authCompany.phoneNumber || "",
-        firstName: profileData.readProfile.fullName?.split(" ")[0] || authCompany.firstName || "",
-        lastName: profileData.readProfile.fullName?.split(" ").slice(1).join(" ") || authCompany.lastName || "",
-      });
-    } else {
-      setEnrichedCompany(authCompany);
-    }
-  }, [authCompany, profileData]);
+  // Merge auth session data with full profile from backend
+  const enrichedCompany: Company = {
+    ...authCompany,
+    address:     profileData?.address     || authCompany.address     || '',
+    companyName: profileData?.companyName || authCompany.companyName || '',
+    phoneNumber: profileData?.phoneNumber || authCompany.phoneNumber || '',
+    firstName:   profileData?.firstName   || authCompany.firstName   || '',
+    lastName:    profileData?.lastName    || authCompany.lastName    || '',
+    fullName:    profileData?.fullName    || authCompany.fullName    || '',
+  };
 
-  return { company: enrichedCompany, loading };
+  return { company: enrichedCompany, loading: isLoading };
 };

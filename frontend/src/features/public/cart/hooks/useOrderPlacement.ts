@@ -1,3 +1,5 @@
+// src/features/public/cart/hooks/useOrderPlacement.ts
+
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { usePlaceOrder } from "../services";
@@ -22,11 +24,20 @@ export const useOrderPlacement = (
   const [showModal, setShowModal] = useState(false);
   const [orderId, setOrderId] = useState<number | undefined>(undefined);
   const [orderNumber, setOrderNumber] = useState<string | undefined>(undefined);
-  const [paymentTrigger, setPaymentTrigger] = useState<{orderId: number; orderNumber: string; orderAmount: number} | null>(null);
-  const [placeOrderMutation] = usePlaceOrder();
+  const [paymentTrigger, setPaymentTrigger] = useState<{
+    orderId: number;
+    orderNumber: string;
+    orderAmount: number;
+  } | null>(null);
+
+  // ✅ TanStack mutation — replaces Apollo's [placeOrderMutation] = usePlaceOrder()
+  const { mutateAsync: placeOrderMutation } = usePlaceOrder();
 
   const handlePlaceOrder = useCallback(
-    async (paymentMethod: "e-payment" | "manual_transfer", validateForm: () => boolean) => {
+    async (
+      paymentMethod: "e-payment" | "manual_transfer",
+      validateForm: () => boolean
+    ) => {
       if (selectedItems.length === 0) {
         setErrors({ notes: "Select at least one item to checkout." });
         return;
@@ -39,7 +50,6 @@ export const useOrderPlacement = (
         return;
       }
 
-      // Check authentication before attempting order
       if (!currentCompany?.userId) {
         setErrors({ notes: "Please log in to place an order." });
         return;
@@ -54,8 +64,9 @@ export const useOrderPlacement = (
 
       setPlacing(true);
       setPaymentTrigger(null);
+
       try {
-        const mutationInput = {
+        const payload = {
           items: selectedItems.map((item: CartItem) => ({
             productId: parseInt(String(item.product.id), 10),
             quantity: parseInt(String(item.qty), 10),
@@ -65,35 +76,32 @@ export const useOrderPlacement = (
           subtotal: parseFloat(String(discountedSubtotal)),
           deliveryFee: parseFloat(String(deliveryFee)),
           grandTotal: parseFloat(String(grandTotal)),
-          userId: currentCompany?.userId || 0,
-          companyId: currentCompany?.userId?.toString(),
           paymentMethod,
         };
 
-        console.log("[useOrderPlacement] Sending mutation with input:", JSON.stringify(mutationInput, null, 2));
+        console.log(
+          "[useOrderPlacement] Sending request with payload:",
+          JSON.stringify(payload, null, 2)
+        );
 
-        const result = await placeOrderMutation({
-          variables: {
-            input: mutationInput,
-          },
-        });
+        // ✅ Direct call — no more { variables: { input: ... } } Apollo wrapper
+        const result = await placeOrderMutation(payload);
 
-        console.log("[useOrderPlacement] Mutation response:", result);
+        console.log("[useOrderPlacement] Response:", result);
 
-        const responseData = result.data as any;
-        if (!responseData?.placeOrder) {
-          const noDataMessage = "No response from server. Please try again.";
-          console.error("[useOrderPlacement] No data returned:", responseData);
-          setErrors({ notes: noDataMessage });
+        // ✅ Flat response — no more responseData?.placeOrder nesting
+        if (!result?.orderId) {
+          console.error("[useOrderPlacement] No orderId in response:", result);
+          setErrors({ notes: "No response from server. Please try again." });
           return;
         }
 
-        const { placeOrder } = responseData;
         removeItems(selectedItems.map((item) => item.product.id));
+
         if (paymentMethod === "e-payment") {
           setPaymentTrigger({
-            orderId: placeOrder.orderId,
-            orderNumber: placeOrder.orderNumber,
+            orderId: result.orderId,
+            orderNumber: result.orderNumber,
             orderAmount: grandTotal,
           });
           setShowModal(false);
@@ -101,34 +109,22 @@ export const useOrderPlacement = (
         }
 
         router.push(
-          `/b2b/order-success?orderNumber=${placeOrder.orderNumber}&orderId=${placeOrder.orderId}&grandTotal=${grandTotal}`
+          `/b2b/order-success?orderNumber=${result.orderNumber}&orderId=${result.orderId}&grandTotal=${grandTotal}`
         );
       } catch (error) {
         let errorMessage = "Failed to place order";
 
-        try {
-          if (error instanceof Error) {
-            errorMessage = error.message;
-            console.error("[useOrderPlacement] Order placement exception:", {
-              message: error.message,
-              name: error.name,
-              stack: error.stack,
-            });
-          } else if (typeof error === 'object' && error !== null) {
-            const errorObj = error as any;
-            console.error("[useOrderPlacement] Order placement exception:", {
-              message: errorObj.message || 'Unknown error',
-              networkError: errorObj.networkError,
-              graphQLErrors: errorObj.graphQLErrors,
-              statusCode: errorObj.statusCode,
-              originalError: errorObj.originalError,
-            });
-            errorMessage = errorObj.message || "Failed to place order";
-          } else {
-            console.error("[useOrderPlacement] Order placement exception:", String(error));
-          }
-        } catch (logError) {
-          console.error("[useOrderPlacement] Failed to log error properly:", String(logError));
+        if (error instanceof Error) {
+          errorMessage = error.message;
+          console.error("[useOrderPlacement] Order placement error:", {
+            message: error.message,
+            name: error.name,
+          });
+        } else {
+          console.error(
+            "[useOrderPlacement] Unknown error:",
+            String(error)
+          );
         }
 
         setErrors({ notes: errorMessage });
@@ -136,12 +132,21 @@ export const useOrderPlacement = (
         setPlacing(false);
       }
     },
-    [selectedItems, confirmed, delivery, selectedSubtotal, currentCompany?.userId, removeItems, router, setErrors, placeOrderMutation]
+    [
+      selectedItems,
+      confirmed,
+      delivery,
+      selectedSubtotal,
+      currentCompany?.userId,
+      removeItems,
+      router,
+      setErrors,
+      placeOrderMutation,
+    ]
   );
 
   const handleCloseModal = useCallback(() => {
     console.log("[useOrderPlacement] handleCloseModal called");
-    // IMPORTANT: Don't reset orderId and orderNumber here - they need to persist for PayMongo modal
     setShowModal(false);
     setErrors({});
     setConfirmed(false);

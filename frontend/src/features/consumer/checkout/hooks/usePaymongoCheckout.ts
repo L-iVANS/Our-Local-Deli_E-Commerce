@@ -1,29 +1,17 @@
-// import { useMutation } from '@apollo/client/react';
-// import { gql } from '@apollo/client';
+// src/features/consumer/checkout/hooks/usePaymongoCheckout.ts
 
-// const INITIATE_PAYMONGO_CHECKOUT = gql`
-//   mutation InitiatePaymongoCheckout($orderId: Int!) {
-//     initiatePaymongoCheckout(orderId: $orderId) {
-//       success
-//       paymentIntentId
-//       checkoutUrl
-//       message
-//     }
-//   }
-// `;
+import { useMutation } from '@tanstack/react-query';
+import { paymongoService } from '../services/paymongo-service';
 
-// export function usePaymongoCheckout() {
-//   return useMutation<
-//     {
-//       initiatePaymongoCheckout: {
-//         success: boolean;
-//         paymentIntentId: string;
-//         checkoutUrl: string;
-//         message: string;
-//       };
-//     },
-//     {
-//       orderId: number;
-//     }
-//   >(INITIATE_PAYMONGO_CHECKOUT);
-// }
+interface CheckoutPayload {
+  orderId: number;
+  amount: number;
+  description?: string;
+}
+
+export const usePaymongoCheckout = () => {
+  return useMutation({
+    mutationFn: (payload: CheckoutPayload) =>
+      paymongoService.initiateCheckout(payload),
+  });
+};

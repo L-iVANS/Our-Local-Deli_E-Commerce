@@ -7,7 +7,7 @@ export const useItemSelection = (items: CartItem[]) => {
 
   useEffect(() => {
     if (items.length === 0) {
-      setSelectedItemIds([]);
+      setSelectedItemIds((current) => (current.length === 0 ? current : []));
       hasInitializedSelection.current = false;
       return;
     }
@@ -20,7 +20,12 @@ export const useItemSelection = (items: CartItem[]) => {
 
     setSelectedItemIds((currentSelected) => {
       const availableIds = new Set(items.map((item) => item.product.id));
-      return currentSelected.filter((id) => availableIds.has(id));
+
+      const filtered = currentSelected.filter((id) => availableIds.has(id));
+
+      return filtered.length === currentSelected.length
+        ? currentSelected
+        : filtered;
     });
   }, [items]);
 
@@ -28,9 +33,13 @@ export const useItemSelection = (items: CartItem[]) => {
     setSelectedItemIds((currentSelected) =>
       currentSelected.includes(productId)
         ? currentSelected.filter((id) => id !== productId)
-        : [...currentSelected, productId]
+        : [...currentSelected, productId],
     );
   }, []);
 
-  return { selectedItemIds, setSelectedItemIds, toggleItemSelection };
+  return {
+    selectedItemIds,
+    setSelectedItemIds,
+    toggleItemSelection,
+  };
 };

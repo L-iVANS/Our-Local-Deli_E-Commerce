@@ -1,10 +1,10 @@
+// src/features/consumer/checkout/components/PaymongoCheckoutModal.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { X, Loader } from 'lucide-react';
 import { toast } from 'sonner';
-import { useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
+import { usePaymongoCheckout } from '../hooks/usePaymongoCheckout';
 
 interface PaymongoCheckoutModalProps {
   isOpen: boolean;
@@ -15,26 +15,6 @@ interface PaymongoCheckoutModalProps {
   onSuccess?: () => void;
 }
 
-interface InitiatePaymongoCheckoutResponse {
-  initiatePaymongoCheckout: {
-    success: boolean;
-    paymentIntentId: string;
-    checkoutUrl: string;
-    message: string;
-  };
-}
-
-const INITIATE_PAYMONGO_CHECKOUT = gql`
-  mutation InitiatePaymongoCheckout($orderId: Int!) {
-    initiatePaymongoCheckout(orderId: $orderId) {
-      success
-      paymentIntentId
-      checkoutUrl
-      message
-    }
-  }
-`;
-
 export function PaymongoCheckoutModal({
   isOpen,
   orderId,
@@ -44,10 +24,9 @@ export function PaymongoCheckoutModal({
   onSuccess,
 }: PaymongoCheckoutModalProps) {
   console.log("[PaymongoCheckoutModal] ⭐ COMPONENT RENDERING - isOpen:", isOpen, "orderId:", orderId);
-  
-  const [initiateCheckout, { loading }] = useMutation<InitiatePaymongoCheckoutResponse>(INITIATE_PAYMONGO_CHECKOUT);
 
-  // Log whenever props change
+  const { mutateAsync, isPending } = usePaymongoCheckout();
+
   useEffect(() => {
     console.log("[PaymongoCheckoutModal] Props changed:", {
       isOpen,
@@ -62,24 +41,20 @@ export function PaymongoCheckoutModal({
       console.log("[PaymongoCheckoutModal] Pay button clicked, initiating checkout for orderId:", orderId);
       toast.loading('Preparing payment...');
 
-      const response = await initiateCheckout({
-        variables: {
-          orderId,
-        },
+      const data = await mutateAsync({
+        orderId,
+        amount: orderAmount,
       });
 
-      const { data } = response;
-
-      if (!data?.initiatePaymongoCheckout?.checkoutUrl) {
+      if (!data?.checkoutUrl) {
         throw new Error('Failed to get checkout URL');
       }
 
       toast.dismiss();
       toast.success('Redirecting to payment gateway...');
 
-      // Redirect to PayMongo checkout
       setTimeout(() => {
-        window.location.href = data.initiatePaymongoCheckout.checkoutUrl;
+        window.location.href = data.checkoutUrl;
       }, 500);
 
       if (onSuccess) {
@@ -112,7 +87,7 @@ export function PaymongoCheckoutModal({
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100 transition-colors z-10"
-          disabled={loading}
+          disabled={isPending}
         >
           <X size={20} className="text-gray-600" />
         </button>
@@ -145,8 +120,8 @@ export function PaymongoCheckoutModal({
               Accepted Payment Methods:
             </p>
             <div className="text-sm text-gray-600 space-y-1">
-              <p>💳 Credit/Debit Cards (Visa, Mastercard, JCB)</p>
-              <p>📱 E-Wallets (GCash, PayMaya, Shopee Pay, Grab Pay)</p>
+              <p>Credit/Debit Cards (Visa, Mastercard, JCB)</p>
+              <p>E-Wallets (GCash, PayMaya, Shopee Pay, Grab Pay)</p>
             </div>
           </div>
 
@@ -154,18 +129,18 @@ export function PaymongoCheckoutModal({
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              disabled={loading}
+              disabled={isPending}
               className="flex-1 py-3 rounded-lg font-medium border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               onClick={handlePayWithPaymongo}
-              disabled={loading}
+              disabled={isPending}
               className="flex-1 py-3 rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {loading && <Loader size={18} className="animate-spin" />}
-              {loading ? 'Processing...' : 'Pay Now'}
+              {isPending && <Loader size={18} className="animate-spin" />}
+              {isPending ? 'Processing...' : 'Pay Now'}
             </button>
           </div>
 
