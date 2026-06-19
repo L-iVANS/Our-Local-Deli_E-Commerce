@@ -12,12 +12,18 @@ import {
 } from '@nestjs/common';
 import type { Request } from 'express';
 import { CartService } from './cart.service';
-import { AddToCartInput, UpdateCartItemInput } from './cart.entity';
+import { AddToCartInput, UpdateCartItemInput } from './entity/cart.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
+
+  @Get('products')
+  @UseGuards(JwtAuthGuard)
+  async getAllProducts() {
+    return await this.cartService.getAllProducts();
+  }
 
   @Get()
   @UseGuards(JwtAuthGuard)
