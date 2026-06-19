@@ -7,13 +7,14 @@ import {
   Share2,
   Star,
   Truck,
-  ShieldCheck,
-  RotateCcw,
-  LogIn,
-  ChevronRight,
+  ShoppingCart,
+  Loader2,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "../../../../components/ui/Button";
 import { cn } from "@/lib/utils";
+import { catalogService } from "../services/catalog-service"; // adjust path as needed
+import { toast } from "sonner"; // or your preferred toast library
 
 interface Product {
   productId: number | string;
@@ -32,25 +33,98 @@ interface ProductModalProps {
   product: Product | null;
   isOpen: boolean;
   onClose: () => void;
+  userId?: number; // pass from auth context/session
+  onCartUpdate?: () => void; // optional callback to refresh cart count
 }
+
+type AddToCartStatus = "idle" | "loading" | "success" | "error";
 
 const ProductModal: React.FC<ProductModalProps> = ({
   product,
   isOpen,
   onClose,
+  userId,
+  onCartUpdate,
 }) => {
   const [activeTier, setActiveTier] = useState<"Retail" | "Wholesale" | "Bulk">(
-    "Retail",
+    "Retail"
   );
   const [selectedColor, setSelectedColor] = useState("Pink");
   const [deliveryOption, setDeliveryOption] = useState<
     "Pick up" | "Delivery Option"
   >("Pick up");
+  const [quantity, setQuantity] = useState(1);
+  const [addToCartStatus, setAddToCartStatus] = useState<AddToCartStatus>("idle");
 
   if (!product) return null;
 
   const colors = ["Pink", "Teal", "Gray", "Black", "Maroon"];
   const formattedPrice = new Intl.NumberFormat().format(product.productPrice);
+
+  // ─── Add to Cart Handler ───────────────────────────────────────────────────
+  const handleAddToCart = async () => {
+    if (!userId) {
+      toast.error("Please log in to add items to your cart.");
+      return;
+    }
+
+    if (addToCartStatus === "loading") return;
+
+    setAddToCartStatus("loading");
+
+    try {
+      await catalogService.addToCart({
+        productId: product.productId,
+        quantity,
+        // selectedColor, // uncomment if color selector is active
+        // selectedSize,  // uncomment if size selector is active
+      });
+
+      setAddToCartStatus("success");
+      toast.success(`${product.productName} added to cart!`);
+      onCartUpdate?.(); // refresh cart badge/count if provided
+
+      // Reset button state after 2 seconds
+      setTimeout(() => {
+        setAddToCartStatus("idle");
+      }, 2000);
+    } catch (error: any) {
+      setAddToCartStatus("error");
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to add to cart. Please try again.";
+      toast.error(message);
+
+      setTimeout(() => {
+        setAddToCartStatus("idle");
+      }, 2000);
+    }
+  };
+
+  // ─── Button State Config ───────────────────────────────────────────────────
+  const buttonConfig = {
+    idle: {
+      label: "Add to Cart",
+      icon: <ShoppingCart size={18} className="transition-transform group-hover:scale-110" />,
+      className: "bg-primary hover:bg-accent shadow-xl shadow-primary/10",
+    },
+    loading: {
+      label: "Adding...",
+      icon: <Loader2 size={18} className="animate-spin" />,
+      className: "bg-primary/70 cursor-not-allowed shadow-xl shadow-primary/10",
+    },
+    success: {
+      label: "Added!",
+      icon: <CheckCircle2 size={18} />,
+      className: "bg-green-500 hover:bg-green-600 shadow-xl shadow-green-500/20",
+    },
+    error: {
+      label: "Try Again",
+      icon: <ShoppingCart size={18} />,
+      className: "bg-red-500 hover:bg-red-600 shadow-xl shadow-red-500/20",
+    },
+  }[addToCartStatus];
 
   return (
     <AnimatePresence>
@@ -92,8 +166,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 alt={product.productName}
                 className="w-full h-auto max-h-[500px] object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.15)]"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src =
-                    "/assets/placeholder.png";
+                  (e.target as HTMLImageElement).src = "/assets/placeholder.png";
                 }}
               />
             </div>
@@ -129,7 +202,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
                       />
                     ))}
                   </div>
-                  {/* Deterministic mock data for demo based on productId */}
                   {(() => {
                     const idValue =
                       typeof (product as any).id === "number"
@@ -153,24 +225,6 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 </div>
               </div>
 
-              {/* Price Tier Selector */}
-              {/* <div className="bg-neutral-50 p-1 rounded-xl flex mb-6">
-                {["Retail", "Wholesale", "Bulk"].map((tier) => (
-                  <button
-                    key={tier}
-                    onClick={() => setActiveTier(tier as any)}
-                    className={cn(
-                      "flex-1 py-2.5 rounded-lg text-xs font-bold transition-all duration-300",
-                      activeTier === tier
-                        ? "bg-primary text-white shadow-md shadow-primary/10"
-                        : "text-neutral-400 hover:text-neutral-600",
-                    )}
-                  >
-                    {tier}
-                  </button>
-                ))}
-              </div> */}
-
               {/* Price Card */}
               <div className="bg-white border border-neutral-100 rounded-[24px] p-6 mb-8 shadow-sm text-center">
                 <p className="text-3xl font-black text-secondary">
@@ -183,35 +237,37 @@ const ProductModal: React.FC<ProductModalProps> = ({
                   "Premium double-wall vacuum insulated stainless steel tumbler that keeps drinks cold for 24 hours and hot for 12 hours."}
               </p>
 
-              {/* Color Selector */}
-              {/* <div className="mb-10">
+              {/* Quantity Selector */}
+              <div className="mb-8">
                 <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-3">
-                  Color
+                  Quantity
                 </p>
-                <div className="flex flex-wrap gap-2.5">
-                  {colors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={cn(
-                        "px-4 py-2 rounded-lg text-[11px] font-bold transition-all border-2",
-                        selectedColor === color
-                          ? "border-primary bg-primary/5 text-secondary"
-                          : "border-neutral-100 text-neutral-400 hover:border-neutral-200",
-                      )}
-                    >
-                      {color}
-                    </button>
-                  ))}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    disabled={quantity <= 1 || addToCartStatus === "loading"}
+                    className="w-9 h-9 rounded-xl border-2 border-neutral-100 flex items-center justify-center font-black text-neutral-400 hover:border-primary hover:text-primary transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    −
+                  </button>
+                  <span className="w-8 text-center font-black text-secondary text-lg">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => setQuantity((q) => q + 1)}
+                    disabled={addToCartStatus === "loading"}
+                    className="w-9 h-9 rounded-xl border-2 border-neutral-100 flex items-center justify-center font-black text-neutral-400 hover:border-primary hover:text-primary transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    +
+                  </button>
                 </div>
-              </div> */}
+              </div>
 
               {/* Delivery Options Section */}
               <div className="mb-10 border-t border-neutral-100 pt-8">
                 <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-4">
                   Delivery Options
                 </p>
-
                 <div className="flex flex-col md:flex-row gap-4">
                   {/* Option 1: Pick up */}
                   <div
@@ -220,7 +276,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
                       "flex-1 p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center text-center",
                       deliveryOption === "Pick up"
                         ? "border-primary bg-primary/5 shadow-sm"
-                        : "border-neutral-100 hover:border-neutral-200",
+                        : "border-neutral-100 hover:border-neutral-200"
                     )}
                   >
                     <div className="flex flex-col items-center gap-2 mb-4 -translate-y-1">
@@ -232,13 +288,12 @@ const ProductModal: React.FC<ProductModalProps> = ({
                           "font-bold text-sm",
                           deliveryOption === "Pick up"
                             ? "text-secondary"
-                            : "text-neutral-400",
+                            : "text-neutral-400"
                         )}
                       >
                         Pick up
                       </span>
                     </div>
-
                     <div className="flex items-center gap-1.5 mt-auto">
                       <span className="px-2 py-1 bg-white border border-neutral-100 rounded-md text-[8px] font-black text-neutral-400">
                         PAYMONGO
@@ -266,14 +321,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
                 </div>
               </div>
 
-              {/* Combined Action Section */}
+              {/* Action Section */}
               <div className="p-4 md:p-6 flex flex-col md:flex-row items-center justify-end gap-6">
-                <Button className="w-full md:w-auto h-auto py-4 px-10 rounded-2xl text-sm font-black bg-primary hover:bg-accent shadow-xl shadow-primary/10 flex items-center justify-center gap-3 group shrink-0">
-                  <LogIn
-                    size={18}
-                    className="transition-transform group-hover:translate-x-1"
-                  />
-                  Add to cart
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={addToCartStatus === "loading"}
+                  className={cn(
+                    "w-full md:w-auto h-auto py-4 px-10 rounded-2xl text-sm font-black flex items-center justify-center gap-3 group shrink-0 transition-all duration-300",
+                    buttonConfig.className
+                  )}
+                >
+                  {buttonConfig.icon}
+                  {buttonConfig.label}
                 </Button>
               </div>
             </div>

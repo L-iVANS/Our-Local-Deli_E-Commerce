@@ -5,7 +5,7 @@ import { OrdersTbl } from '../src/modules/admin/orders/entity/orders.tbl';
 import { InvoicesTbl } from '../src/modules/admin/invoices/entity/invoices.tbl';
 import { ProductsTbl } from '../src/modules/admin/products/entity/products.tbl';
 import { PaymentsTbl } from '../src/modules/admin/payments/entity/payments.tbl';
-import { CartItem } from '../src/modules/general/cart/cart.entity';
+import { CartItem } from '../src/modules/general/cart/entity/cart.entity';
 import { CategoriesTbl } from '../src/modules/admin/categories/entity/categories.tbl';
 import { NotificationsTbl } from '../src/modules/general/notifications/entity/notifications.tbl';
 import { NavBarTbl } from '../src/modules/admin/cms/entities/nav-bar-tbl';

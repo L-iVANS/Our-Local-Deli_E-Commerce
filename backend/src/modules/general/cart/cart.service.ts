@@ -10,7 +10,7 @@ import {
   AddToCartInput,
   UpdateCartItemInput,
   CartResponse,
-} from './cart.entity';
+} from './entity/cart.entity';
 import { ProductsTbl } from '../../admin/products/entity/products.tbl';
 
 @Injectable()
@@ -21,6 +21,10 @@ export class CartService {
     @InjectRepository(ProductsTbl)
     private readonly productRepository: Repository<ProductsTbl>,
   ) {}
+
+  async getAllProducts(): Promise<ProductsTbl[]> {
+    return await this.productRepository.find({ relations: { category: true } });
+  }
 
   private async getCartItemWithProduct(id: number): Promise<any> {
     const item = await this.cartRepository.findOne({ where: { id } });
