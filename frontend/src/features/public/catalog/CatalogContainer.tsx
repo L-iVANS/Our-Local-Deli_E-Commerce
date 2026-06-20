@@ -14,22 +14,25 @@ import ProductList from "./components/ProductList";
 import ProductModal from "./components/ProductModal";
 import type { Product } from "@/src/data/products";
 import { motion, AnimatePresence } from "framer-motion";
+import LoginModal from "./components/LoginModal";
 
 const CatalogContainer = () => {
   // Navigation & Search Params
-
   const searchParams = useSearchParams();
 
   // State
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null,
-  );
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [priceType, setPriceType] = useState("Retail");
   const [sortBy, setSortBy] = useState("Featured");
-  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
+
+  // TODO: replace with your actual auth context/hook
+  const userId: number | undefined = undefined;
 
   // Data Fetching
   const {
@@ -39,7 +42,6 @@ const CatalogContainer = () => {
   } = useCatalogProducts();
 
   // Fallback Logic
-
   const products = useMemo((): Product[] => {
     const source =
       productsResponse && productsResponse.length > 0
@@ -68,18 +70,17 @@ const CatalogContainer = () => {
     );
   }, [productsResponse]);
 
-  // const categories = useMemo(() => {
   const categories = useMemo(() => {
     const map = new Map<string, { id: string; name: string; slug: string }>();
 
     products.forEach((p: Product) => {
-      const raw = p.category; // already normalized slug
+      const raw = p.category;
       if (!raw) return;
 
       if (!map.has(raw)) {
         map.set(raw, {
           id: raw,
-          name: raw, // ideally you'd titlecase this
+          name: raw,
           slug: raw,
         });
       }
@@ -90,7 +91,6 @@ const CatalogContainer = () => {
 
   // Deep Linking Effect
   useEffect(() => {
-    // Handle Category Deep Linking
     const categoryParam = searchParams.get("category");
     if (categoryParam && categories.length > 0) {
       const foundCategory = categories.find(
@@ -102,10 +102,7 @@ const CatalogContainer = () => {
         setSelectedCategoryId(foundCategory.id);
       }
     }
-    console.log("products:", products);
-    console.log("filtered:", filteredProducts);
 
-    // Handle Product Deep Linking
     if (products.length > 0) {
       const productId = searchParams.get("productId");
       if (productId) {
@@ -135,7 +132,7 @@ const CatalogContainer = () => {
     }
 
     if (sortBy === "Price: Low → High") {
-      result.sort((a, b) => a.productPrice - b.productPrice); // ✅ was using p.productPrice on old shape
+      result.sort((a, b) => a.productPrice - b.productPrice);
     } else if (sortBy === "Price: High → Low") {
       result.sort((a, b) => b.productPrice - a.productPrice);
     } else if (sortBy === "Best Rated") {
@@ -152,6 +149,16 @@ const CatalogContainer = () => {
     setIsModalOpen(true);
   };
 
+  const handleRequireLogin = (product: Product) => {
+    setPendingProduct(product);
+    setLoginModalOpen(true);
+  };
+
+  const handleLoginSuccess = () => {
+    setLoginModalOpen(false);
+    setTimeout(() => setPendingProduct(null), 500);
+  };
+
   return (
     <div className="flex flex-col w-full bg-white min-h-screen">
       <Header forceTheme="A" />
@@ -164,7 +171,6 @@ const CatalogContainer = () => {
 
       <main className="container mx-auto px-6 py-12 md:py-16">
         <div className="flex flex-col gap-10">
-          {/* Controls */}
           <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <FilterPanel
@@ -184,7 +190,6 @@ const CatalogContainer = () => {
             />
           </div>
 
-          {/* Product Listing */}
           <div className="min-h-[400px]">
             {loading && !products.length ? (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-10">
@@ -242,8 +247,7 @@ const CatalogContainer = () => {
                   No products found
                 </h3>
                 <p className="text-neutral-400">
-                  Try adjusting your search or filters to find what you're
-                  looking for.
+                  Try adjusting your search or filters to find what you're looking for.
                 </p>
                 <button
                   onClick={() => {
@@ -262,11 +266,22 @@ const CatalogContainer = () => {
 
       <Footer />
 
-      {/* Product Modal */}
       <ProductModal
         product={selectedProduct}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        userId={userId}
+        onRequireLogin={handleRequireLogin}
+      />
+
+      <LoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+        triggerContext={{
+          action: "add-to-cart",
+          productName: pendingProduct?.productName,
+        }}
       />
     </div>
   );
