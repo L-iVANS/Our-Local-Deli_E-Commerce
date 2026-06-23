@@ -17,6 +17,7 @@ import { catalogService } from "../services/catalog-service";
 import { toast } from "sonner";
 // 1. Import the same type used in the Container
 import type { Product } from "@/src/data/products";
+import type { HTTPError } from 'ky';
 
 interface ProductModalProps {
   product: Product | null;
@@ -60,18 +61,27 @@ const ProductModal: React.FC<ProductModalProps> = ({
 
     try {
       await catalogService.addToCart({
-        productId: product.productId,
-        quantity,
+        productId: Number(product.productId), // ✅ ensure number
+        quantity: Number(quantity),           // ✅ ensure number
       });
 
       setAddToCartStatus("success");
       toast.success(`${product.productName} added to cart!`);
       onCartUpdate?.();
-
       setTimeout(() => setAddToCartStatus("idle"), 2000);
-    } catch (error: any) {
+
+    } catch (error) {
       setAddToCartStatus("error");
-      const message = error?.response?.data?.message || error?.message || "Failed to add to cart.";
+
+      let message = "Failed to add to cart.";
+      try {
+        const httpError = error as any;
+        const body = await httpError.response?.json();
+        message = body?.message || httpError.message || message;
+      } catch {
+        message = (error as any)?.message || message;
+      }
+
       toast.error(message);
       setTimeout(() => setAddToCartStatus("idle"), 2000);
     }

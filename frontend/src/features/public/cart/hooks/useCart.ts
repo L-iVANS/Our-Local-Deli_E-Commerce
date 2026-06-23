@@ -1,12 +1,12 @@
+// src/features/public/cart/hooks/useCart.ts
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import { CartItem, CartResponse } from "../types/index";
+import { cartService } from "../services/cart-service"; // ✅ adjust path if needed
 
 export const useCart = () => {
-  return useQuery<CartResponse>({
+  return useQuery({
     queryKey: ["cart"],
     queryFn: async () => {
-      return api.get("cart").json<CartResponse>();
+      return await cartService.getCart(); // ✅ mapper runs inside, returns frontend shape
     },
   });
 };

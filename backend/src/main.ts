@@ -7,11 +7,17 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // ✅ cookieParser FIRST — must parse cookies before guards run
+  app.use(cookieParser());
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      forbidNonWhitelisted: true,
+      forbidNonWhitelisted: false, // ✅ changed — don't reject unknown fields
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true, // ✅ auto converts "1" → 1 for @IsInt()
+      },
     }),
   );
 
@@ -31,7 +37,6 @@ async function bootstrap() {
         callback(null, true);
         return;
       }
-
       callback(new Error('Origin not allowed by CORS'), false);
     },
     credentials: true,
@@ -39,17 +44,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  app.use(cookieParser());
-
-  app.use((req, res, next) => {
-    const origin = req.get('origin');
-    if (!origin || allowedOrigins.includes(origin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin || '*');
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-    }
-    next();
-  });
-
+  // ✅ helmet AFTER cors
   app.use(
     helmet({
       contentSecurityPolicy: isProduction,
@@ -59,6 +54,19 @@ async function bootstrap() {
     }),
   );
 
+  // ✅ Remove the manual Access-Control headers — enableCors() handles this
+  // Having both causes duplicate header conflicts
+  // ❌ REMOVED this block:
+  // app.use((req, res, next) => {
+  //   const origin = req.get('origin');
+  //   if (!origin || allowedOrigins.includes(origin)) {
+  //     res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  //     res.setHeader('Access-Control-Allow-Credentials', 'true');
+  //   }
+  //   next();
+  // });
+
   await app.listen(process.env.PORT ?? 4000);
 }
+
 bootstrap();

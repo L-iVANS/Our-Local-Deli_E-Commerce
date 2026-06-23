@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+// src/features/public/cart/hooks/useCartLogic.ts
+import { useCallback } from "react";
 import { useAuth } from "@/features/auth";
 import { useCart } from "./useCart";
 import { useItemSelection } from "./useItemSelection";
@@ -30,6 +31,7 @@ export function useCartLogic() {
     (total, item) => total + item.qty * item.unitPrice,
     0,
   );
+
   const { selectedItemIds, setSelectedItemIds, toggleItemSelection } =
     useItemSelection(items);
   const { selectedItems, selectedItemCount, selectedSubtotal } =
@@ -79,14 +81,39 @@ export function useCartLogic() {
   const { mutate: updateCartItem } = useUpdateCartItem();
   const { mutate: removeCartItem } = useRemoveCartItem();
 
-  // In useCartLogic, convert to string when exposing the handlers
-  const onUpdateQty = (productId: string, qty: number) => {
-    updateCartItem({ id: Number(productId), quantity: qty });
-  };
+  // ✅ Find the cart row by productId, then use its real cart row id
+  const onUpdateQty = useCallback(
+    (productId: string, qty: number) => {
+      if (qty < 1) return;
 
-  const onRemoveItem = (productId: string) => {
-    removeCartItem(Number(productId));
-  };
+      const cartRow = items.find((i) => i.product.id === productId);
+      if (!cartRow?.id) {
+        console.warn(
+          `[useCartLogic] Cart row not found for productId=${productId}`,
+        );
+        return;
+      }
+
+      updateCartItem({ id: cartRow.id, quantity: qty });
+    },
+    [items, updateCartItem],
+  );
+
+  const onRemoveItem = useCallback(
+    (productId: string) => {
+      const cartRow = items.find((i) => i.product.id === productId);
+      if (!cartRow?.id) {
+        console.warn(
+          `[useCartLogic] Cart row not found for productId=${productId}`,
+        );
+        return;
+      }
+
+      removeCartItem(cartRow.id);
+    },
+    [items, removeCartItem],
+  );
+
   return {
     isLoggedIn,
     company,

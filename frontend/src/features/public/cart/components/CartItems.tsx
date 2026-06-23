@@ -4,8 +4,8 @@ import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { CartItem, Company } from "../types";
 
-// Helper function to convert product name to URL slug
-const productNameToSlug = (name: string): string => {
+const productNameToSlug = (name?: string): string => {
+  if (!name) return "";
   return name
     .toLowerCase()
     .trim()
@@ -34,9 +34,7 @@ export function CartItems({
 }: CartItemsProps) {
   return (
     <div className="lg:col-span-2 space-y-3">
-      {/* Items list */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        {/* Column headers */}
         <div className="hidden sm:grid grid-cols-12 gap-3 px-5 py-3 border-b border-gray-50">
           <div className="col-span-6 text-xs font-semibold text-gray-400 uppercase tracking-wider">Product</div>
           <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Price</div>
@@ -45,11 +43,12 @@ export function CartItems({
         </div>
 
         {items.map((item) => {
-          const isSelected = selectedItemIds.includes(item.product.id);
+          const productId = item.product.id;
+          const isSelected = selectedItemIds.includes(productId);
 
           return (
             <div
-              key={item.product.id}
+              key={item.id ?? productId}     // ✅ unique key from cart row id
               className="border-b border-gray-50 last:border-0"
             >
               <div className="grid grid-cols-12 gap-3 px-4 sm:px-5 py-4 items-center">
@@ -58,7 +57,7 @@ export function CartItems({
                   <input
                     type="checkbox"
                     checked={isSelected}
-                    onChange={() => onToggleItemSelection(item.product.id)}
+                    onChange={() => onToggleItemSelection(productId)}
                     aria-label={`Select ${item.product.name} for checkout`}
                     className="h-3 w-3 shrink-0 accent-red-600 cursor-pointer"
                   />
@@ -70,7 +69,9 @@ export function CartItems({
                     />
                   )}
                   <div className="min-w-0">
-                    <div className="text-gray-400 text-xs mb-0.5">{item.product.category}</div>
+                    <div className="text-gray-400 text-xs mb-0.5">
+                      {item.product.category}
+                    </div>
                     <Link
                       href={`/b2b/products/${productNameToSlug(item.product.name)}`}
                       className="text-gray-800 text-xs font-medium leading-snug hover:text-red-600 transition-colors line-clamp-2 block"
@@ -89,9 +90,13 @@ export function CartItems({
                 {/* Unit price */}
                 <div className="col-span-4 sm:col-span-2 text-left sm:text-center">
                   <div className="text-[10px] uppercase tracking-wide text-gray-400 mb-0.5 sm:hidden">Price</div>
-                  <div className="text-gray-900 text-sm font-medium">₱{item.unitPrice.toLocaleString()}</div>
+                  <div className="text-gray-900 text-sm font-medium">
+                    ₱{item.unitPrice.toLocaleString()}
+                  </div>
                   {item.unitPrice < (item.product.retailPrice ?? 0) && (
-                    <div className="text-gray-300 text-xs line-through">₱{(item.product.retailPrice ?? 0).toLocaleString()}</div>
+                    <div className="text-gray-300 text-xs line-through">
+                      ₱{(item.product.retailPrice ?? 0).toLocaleString()}
+                    </div>
                   )}
                 </div>
 
@@ -99,29 +104,29 @@ export function CartItems({
                 <div className="col-span-4 sm:col-span-2 flex items-center justify-start sm:justify-center">
                   <div>
                     <div className="text-[10px] uppercase tracking-wide text-gray-400 mb-1 sm:hidden">Qty</div>
-                  <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onUpdateQty(item.product.id, item.qty - 1);
-                      }}
-                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"
-                    >
-                      <Minus size={12} />
-                    </button>
-                    <span className="w-8 text-center text-sm font-semibold text-gray-800 border-x border-gray-200">
-                      {item.qty}
-                    </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onUpdateQty(item.product.id, item.qty + 1);
-                      }}
-                      className="w-7 h-7 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"
-                    >
-                      <Plus size={12} />
-                    </button>
-                  </div>
+                    <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onUpdateQty(productId, item.qty - 1);
+                        }}
+                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"
+                      >
+                        <Minus size={12} />
+                      </button>
+                      <span className="w-8 text-center text-sm font-semibold text-gray-800 border-x border-gray-200">
+                        {item.qty}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onUpdateQty(productId, item.qty + 1);
+                        }}
+                        className="w-7 h-7 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"
+                      >
+                        <Plus size={12} />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -134,7 +139,7 @@ export function CartItems({
                     </span>
                   </div>
                   <button
-                    onClick={() => onRemoveItem(item.product.id)}
+                    onClick={() => onRemoveItem(productId)}
                     className="text-gray-300 hover:text-red-400 transition-colors ml-1 shrink-0"
                   >
                     <Trash2 size={14} />

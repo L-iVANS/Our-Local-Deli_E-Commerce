@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { catalogService } from "../services/catalog-service";
 
 export const useCatalogProducts = () => {
   return useQuery({
     queryKey: ["catalog-products"],
-    queryFn: () => api.get("cart/products").json<any[]>(),
+    queryFn: catalogService.getProducts,
   });
 };

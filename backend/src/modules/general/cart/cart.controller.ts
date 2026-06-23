@@ -19,8 +19,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
+  // public, no need authguard
   @Get('products')
-  @UseGuards(JwtAuthGuard)
   async getAllProducts() {
     return await this.cartService.getAllProducts();
   }

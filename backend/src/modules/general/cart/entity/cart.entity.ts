@@ -46,9 +46,9 @@ export class AddToCartInput {
   @Min(1)
   declare quantity: number;
 
-  @IsNumber()
-  @Min(0)
-  declare unitPrice: number;
+  // @IsNumber()
+  // @Min(0)
+  // declare unitPrice: number;
 
   @IsOptional()
   @IsString()

@@ -8,6 +8,7 @@ import {
   Body,
   Req,
   Res,
+  Get,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
@@ -41,6 +42,16 @@ export class AuthController implements OnModuleInit {
       this.rateLimitService.cleanup();
       this.bruteForceService.cleanup();
     }, 5 * 60 * 1000);
+  }
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async me(@Req() req: Request) {
+    const user = (req as any).user;
+    return {
+      userId: user.userId,
+      emailAddress: user.emailAddress,
+      role: user.role,
+    };
   }
 
   @Post('login')

@@ -1,5 +1,6 @@
+// src/features/public/cart/hooks/useUpdateCartItems.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { cartService } from "../services/cart-service";
 
 export const useUpdateCartItem = () => {
   const queryClient = useQueryClient();
@@ -9,18 +10,14 @@ export const useUpdateCartItem = () => {
       id,
       quantity,
     }: {
-      id: number;
+      id: number;       // ✅ cart row id (not productId)
       quantity: number;
     }) => {
-      return await api.patch(`cart/items/${id}`, {
-        json: { quantity },
-      }).json();
+      return await cartService.updateQty(id, quantity);
     },
 
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["cart"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
 };

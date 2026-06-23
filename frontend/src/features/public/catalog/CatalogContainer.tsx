@@ -15,10 +15,20 @@ import ProductModal from "./components/ProductModal";
 import type { Product } from "@/src/data/products";
 import { motion, AnimatePresence } from "framer-motion";
 import LoginModal from "./components/LoginModal";
+// import { useCurrentUser } from "../catalog/hooks/useCurrentUser";
+import type { SessionUser } from "../../../lib/session";
+import { useCurrentUser } from "./hooks/useCurrentUser";
 
-const CatalogContainer = () => {
-  // Navigation & Search Params
+interface CatalogContainerProps {
+    initialUser: SessionUser | null;
+  }
+
+const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
   const searchParams = useSearchParams();
+
+  // // ✅ Replaces the broken getUserIdFromCookie + useState approach
+  const { user, refresh: refreshUser } = useCurrentUser(initialUser);
+  const userId = user?.userId;
 
   // State
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,14 +41,10 @@ const CatalogContainer = () => {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
 
-  // TODO: replace with your actual auth context/hook
-  const userId: number | undefined = undefined;
-
   // Data Fetching
   const {
     data: productsResponse,
     isLoading: loading,
-    error,
   } = useCatalogProducts();
 
   // Fallback Logic
@@ -156,7 +162,14 @@ const CatalogContainer = () => {
 
   const handleLoginSuccess = () => {
     setLoginModalOpen(false);
-    setTimeout(() => setPendingProduct(null), 500);
+    refreshUser(); // ✅ calls GET /auth/me → gets real userId via httpOnly cookie
+
+    // ✅ Re-open product modal so user can immediately add to cart
+    if (pendingProduct) {
+      setSelectedProduct(pendingProduct);
+      setIsModalOpen(true);
+      setTimeout(() => setPendingProduct(null), 500);
+    }
   };
 
   return (
@@ -270,14 +283,15 @@ const CatalogContainer = () => {
         product={selectedProduct}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        userId={userId}
+        userId={userId}            // ✅ real number after login, undefined when logged out
         onRequireLogin={handleRequireLogin}
+        onCartUpdate={refreshUser} // ✅ keeps session fresh
       />
 
       <LoginModal
         isOpen={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
+        onLoginSuccess={handleLoginSuccess} // ✅ triggers refreshUser → userId updates
         triggerContext={{
           action: "add-to-cart",
           productName: pendingProduct?.productName,
