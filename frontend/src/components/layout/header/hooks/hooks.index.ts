@@ -4,3 +4,5 @@ export type { HeroVersion } from "./useHeroVersion";
 export { useScrollSpy } from "./useScrollSpy";
 export { useHeaderTheme } from "./useHeaderTheme";
 export { useDisplayName } from "./useDisplayName";
+export { useProfile } from "./useProfile";         
+export type { UserProfile } from "./useProfile";   

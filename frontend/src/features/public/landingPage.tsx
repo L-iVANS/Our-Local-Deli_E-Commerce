@@ -1,4 +1,4 @@
-import Header from "@/src/components/layout/Header";
+import Header from "@/src/components/layout/header/Header";
 import Footer from "@/src/components/layout/Footer";
 import HeroSectionToggle from "@/src/features/public/components/sections/hero/HeroSectionToggle";
 import CategoryStrip from "@/src/features/public/components/sections/CategoryStrip";

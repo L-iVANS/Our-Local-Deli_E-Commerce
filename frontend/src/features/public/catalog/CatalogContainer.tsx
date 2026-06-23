@@ -20,8 +20,8 @@ import type { SessionUser } from "../../../lib/session";
 import { useCurrentUser } from "./hooks/useCurrentUser";
 
 interface CatalogContainerProps {
-    initialUser: SessionUser | null;
-  }
+  initialUser: SessionUser | null;
+}
 
 const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
   const searchParams = useSearchParams();
@@ -32,7 +32,9 @@ const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
 
   // State
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  );
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [priceType, setPriceType] = useState("Retail");
   const [sortBy, setSortBy] = useState("Featured");
@@ -42,10 +44,7 @@ const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
 
   // Data Fetching
-  const {
-    data: productsResponse,
-    isLoading: loading,
-  } = useCatalogProducts();
+  const { data: productsResponse, isLoading: loading } = useCatalogProducts();
 
   // Fallback Logic
   const products = useMemo((): Product[] => {
@@ -66,7 +65,12 @@ const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
               : (p.productPrice ?? p.price ?? 0),
         retailPrice: p.retailPrice ?? p.productPrice ?? p.price,
         imageUrl: p.imageUrl ?? p.image,
-        category: String(p.categoryId ?? p.category ?? p.categoryName ?? "")
+        category: String(
+          p.category?.slug ?? // ✅ first choice: use slug directly ("frozen-meat")
+            p.category?.categoryName ?? // ✅ second choice: normalize the name
+            p.categoryName ?? // fallback for flat shapes
+            "",
+        )
           .toLowerCase()
           .replace(/\s+/g, "-")
           .trim(),
@@ -260,7 +264,8 @@ const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
                   No products found
                 </h3>
                 <p className="text-neutral-400">
-                  Try adjusting your search or filters to find what you're looking for.
+                  Try adjusting your search or filters to find what you're
+                  looking for.
                 </p>
                 <button
                   onClick={() => {
@@ -283,7 +288,7 @@ const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
         product={selectedProduct}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        userId={userId}            // ✅ real number after login, undefined when logged out
+        userId={userId} // ✅ real number after login, undefined when logged out
         onRequireLogin={handleRequireLogin}
         onCartUpdate={refreshUser} // ✅ keeps session fresh
       />

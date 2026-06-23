@@ -17,6 +17,7 @@ interface FilterPanelProps {
 }
 
 const FilterPanel: React.FC<FilterPanelProps> = ({
+  categories,
   selectedCategoryId,
   onCategorySelect,
 }) => {
@@ -34,7 +35,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         All
       </button>
 
-      {categoriesData.map((category) => (
+      {categories.map((category) => (
         <button
           key={category.id}
           onClick={() => onCategorySelect(category.id)}

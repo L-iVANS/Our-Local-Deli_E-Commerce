@@ -10,8 +10,8 @@ import {
   useScrollSpy,
   useHeaderTheme,
   useDisplayName,
-} from "./hooks";
-import type { HeroVersion } from "./hooks";
+} from "./hooks/hooks.index";
+import type { HeroVersion } from "./hooks/hooks.index";
 
 import { DesktopNav, MobileMenu, HeaderActions } from "./components";
 

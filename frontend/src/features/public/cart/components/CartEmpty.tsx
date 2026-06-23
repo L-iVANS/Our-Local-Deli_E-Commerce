@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { ShoppingCart, ArrowRight } from "lucide-react";
-import { CART_COLORS } from "../constants/cartConstants";
+
 
 export function CartEmpty() {
-  const { RED, RED_LIGHT } = CART_COLORS;
 
   return (
     <div
@@ -13,10 +12,9 @@ export function CartEmpty() {
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <div
-        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
-        style={{ backgroundColor: RED_LIGHT }}
+        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 background-primary"
       >
-        <ShoppingCart size={28} style={{ color: RED }} />
+        <ShoppingCart size={28}/>
       </div>
       <h2
         className="text-gray-900 mb-2"
@@ -33,8 +31,7 @@ export function CartEmpty() {
         </Link>
           <Link
             href="/catalog"
-          className="px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2"
-          style={{ backgroundColor: RED }}
+          className="px-5 py-2.5 rounded-xl text-primary text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2 border border-primary"
         >
           Browse Catalog <ArrowRight size={15} />
         </Link>
