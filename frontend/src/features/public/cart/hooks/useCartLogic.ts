@@ -7,7 +7,7 @@ import { useSelectedItems } from "./useSelectedItems";
 import { useMoqWarnings, useSelectedMoqWarnings } from "./useMoqWarnings";
 import { useDeliveryForm } from "./useDeliveryForm";
 import { useOrderPlacement } from "./useOrderPlacement";
-import { useEnrichedCompanyProfile } from "./useEnrichedCompanyProfile";
+import { useEnrichedUserProfile } from "./useEnrichedUserProfile";
 import { normalizeCompany, CartAuthCompany } from "./useCompany";
 import { useUpdateCartItem } from "./useUpdateCartItems";
 import { useRemoveCartItem } from "./useRemoveCartItem";
@@ -17,8 +17,8 @@ import { useRemoveCartItem } from "./useRemoveCartItem";
  * Handles: delivery form, order confirmation, MOQ warnings, etc.
  */
 export function useCartLogic() {
-  const { isLoggedIn, company: authCompany } = useAuth();
-  const { company: enrichedCompany } = useEnrichedCompanyProfile();
+  const { isLoggedIn, user: authCompany } = useAuth();
+  const { user: enrichedCompany } = useEnrichedUserProfile();
   const { data: cart, isLoading } = useCart();
   const currentCompany = enrichedCompany as CartAuthCompany | null;
 

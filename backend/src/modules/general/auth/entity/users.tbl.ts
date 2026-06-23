@@ -18,7 +18,7 @@ export class UsersTbl {
   declare emailAddress: string;
 
   @Column()
-  declare companyName: string;
+  declare userName: string;
 
   @Column()
   declare address: string;

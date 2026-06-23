@@ -153,7 +153,7 @@ export class OrdersService {
         userId: adminUserId,
         type: 'new_order',
         title: 'New Order Received',
-        message: `New order placed by ${customer?.companyName || `Customer #${createOrderDto.userId}`}.
+        message: `New order placed by ${customer?.fullName || `Customer #${createOrderDto.userId}`}.
 
 Product: ${product.productName}
 Quantity: ${createOrderDto.quantity}
@@ -162,7 +162,7 @@ Total: PHP ${(
         ).toLocaleString()}`,
         orderId: savedOrder.orderId,
         metadata: JSON.stringify({
-          customerName: customer?.companyName,
+          customerName: customer?.fullName,
           productName: product.productName,
           quantity: createOrderDto.quantity,
           totalPrice: createOrderDto.quantity * createOrderDto.unitPrice,
@@ -477,14 +477,14 @@ ${attemptsLeft > 0 ? `Please upload a valid proof. Attempts left: ${attemptsLeft
         userId: adminUserId,
         type: 'new_order',
         title: 'New Order Received',
-        message: `New order placed by ${customer?.companyName || `Customer #${placeOrderDto.userId}`}.
+        message: `New order placed by ${customer?.fullName || `Customer #${placeOrderDto.userId}`}.
 
 Order Number: ${orderNumber}
 Items: ${placeOrderDto.items.length}
 Total: PHP ${placeOrderDto.grandTotal?.toLocaleString()}`,
         orderId: createdOrders[0]?.orderId,
         metadata: JSON.stringify({
-          customerName: customer?.companyName,
+          customerName: customer?.fullName,
           orderNumber,
           itemCount: placeOrderDto.items.length,
           totalPrice: placeOrderDto.grandTotal,

@@ -1,10 +1,10 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, ShoppingCart, Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/src/lib/utils";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/features/auth";
 // import { Logo } from "@/src/components/ui/Logo";
 
 const NavLinks = [
@@ -28,6 +28,23 @@ const Header = ({ forceTheme }: HeaderProps) => {
   const [heroVersion, setHeroVersion] = useState<"A" | "B">("B");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname(); // ✅ Hook called inside component
+
+  const { isLoggedIn, user } = useAuth();
+  const fullName = user?.fullName;
+  const firstName = user?.firstName;
+  const email = user?.emailAddress;
+
+  // Try multiple fallback strategies
+  const displayName =
+    fullName && fullName.trim()
+      ? fullName.split(" ")[0]
+      : firstName && firstName.trim()
+        ? firstName
+        : email
+          ? email.split("@")[0] // Extract "partner" from "partner@example.com"
+          : "User";
+
+  const displayInitial = displayName.charAt(0).toUpperCase();
 
   // Active section tracking for scrollspy
   const [isNavigating, setIsNavigating] = useState(false);
@@ -201,6 +218,23 @@ const Header = ({ forceTheme }: HeaderProps) => {
           >
             {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
+          {/* Welcome User */}
+          {isLoggedIn && (
+            <div className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white/70">
+              <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center text-sm font-semibold">
+                <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center">
+                  {displayInitial}
+                </div>
+              </div>
+
+              <div className="flex flex-col leading-tight">
+                <span className="text-xs text-gray-500">Welcome</span>
+                <span className="text-sm font-semibold text-gray-900">
+                  {displayName}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

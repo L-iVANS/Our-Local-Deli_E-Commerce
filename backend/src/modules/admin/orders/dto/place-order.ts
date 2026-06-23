@@ -67,9 +67,9 @@ export class PlaceOrderDto {
   @IsNumber()
   userId: number;
 
-  @IsOptional()
-  @IsString()
-  companyId?: string;
+  // @IsOptional()
+  // @IsString()
+  // companyId?: string;
 
   @IsNotEmpty()
   @IsString()

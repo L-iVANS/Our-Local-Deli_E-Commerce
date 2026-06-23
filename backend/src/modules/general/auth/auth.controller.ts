@@ -49,6 +49,7 @@ export class AuthController implements OnModuleInit {
     const user = (req as any).user;
     return {
       userId: user.userId,
+      fullName: user.fullName,
       emailAddress: user.emailAddress,
       role: user.role,
     };

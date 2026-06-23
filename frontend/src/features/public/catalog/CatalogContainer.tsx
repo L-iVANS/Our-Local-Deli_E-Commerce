@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useCatalogProducts } from "@/features/public/catalog/hooks/useCatalogProducts";
 import { useSearchParams } from "next/navigation";
 import { productsData } from "@/data/products";
-import Header from "@/components/layout/Header";
+import Header from "@/components/layout/header/Header";
 import Footer from "@/components/layout/Footer";
 import CatalogHeader from "./components/CatalogHeader";
 import FilterPanel from "./components/FilterPanel";

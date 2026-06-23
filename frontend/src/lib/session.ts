@@ -1,10 +1,11 @@
 import { cookies } from "next/headers";
 
-export type SessionUser = {
+export interface SessionUser {
   userId: number;
+  fullName: string;
   emailAddress: string;
   role: string;
-};
+}
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   const parts = token.split(".");
@@ -12,7 +13,10 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 
   try {
     const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "=",
+    );
     const payload = JSON.parse(Buffer.from(padded, "base64").toString("utf-8"));
 
     if (typeof payload !== "object" || payload === null) return null;
@@ -35,12 +39,17 @@ export async function getSession(): Promise<SessionUser | null> {
   const emailAddress = payload.emailAddress;
   const role = payload.role;
 
-  if (typeof userId !== "number" || typeof emailAddress !== "string" || typeof role !== "string") {
+  if (
+    typeof userId !== "number" ||
+    typeof emailAddress !== "string" ||
+    typeof role !== "string"
+  ) {
     return null;
   }
 
   return {
     userId,
+    fullName: payload.fullName as string,
     emailAddress,
     role,
   };

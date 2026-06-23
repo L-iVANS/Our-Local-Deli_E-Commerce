@@ -5,4 +5,4 @@ export { useSelectedItems } from "./useSelectedItems";
 export { useMoqWarnings, useSelectedMoqWarnings } from "./useMoqWarnings";
 export { useDeliveryForm } from "./useDeliveryForm";
 export { useOrderPlacement } from "./useOrderPlacement";
-export { useEnrichedCompanyProfile } from "./useEnrichedCompanyProfile";
+export { useEnrichedCompanyProfile } from "./useEnrichedUserProfile";

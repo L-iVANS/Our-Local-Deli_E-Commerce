@@ -1,17 +1,22 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 import type { SessionUser } from "@/lib/session";
 import { QueryClient } from "@tanstack/react-query";
 
-export interface CompanyProfile {
+export interface UserProfile {
   userId: number;
   firstName: string;
   middleName: string;
   lastName: string;
   fullName: string;
   emailAddress: string;
-  companyName: string;
   address: string;
   phoneNumber: string;
   role: string;
@@ -19,22 +24,19 @@ export interface CompanyProfile {
 
 interface AuthContextType {
   isLoggedIn: boolean;
-  company: CompanyProfile | null;
-  login: (userData: CompanyProfile) => void;
+  user: UserProfile | null;
+  login: (userData: UserProfile) => void;
   logout: () => void;
 }
 
-function createCompanyProfileFromSession(session: SessionUser): CompanyProfile {
-  const guessedName = session.emailAddress.split("@")[0] || "User";
-
+function createUserProfileFromSession(session: SessionUser): UserProfile {
   return {
     userId: session.userId,
-    firstName: guessedName,
+    firstName: "",
     middleName: "",
     lastName: "",
-    fullName: guessedName,
+    fullName: session.fullName,
     emailAddress: session.emailAddress,
-    companyName: "",
     address: "",
     phoneNumber: "",
     role: session.role,
@@ -43,7 +45,7 @@ function createCompanyProfileFromSession(session: SessionUser): CompanyProfile {
 
 const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
-  company: null,
+  user: null,
   login: () => {},
   logout: () => {},
 });
@@ -56,8 +58,8 @@ export function AuthProvider({
   initialSession?: SessionUser | null;
 }) {
   const [isLoggedIn, setIsLoggedIn] = useState(Boolean(initialSession));
-  const [company, setCompany] = useState<CompanyProfile | null>(
-    initialSession ? createCompanyProfileFromSession(initialSession) : null
+  const [user, setUser] = useState<UserProfile | null>(
+    initialSession ? createUserProfileFromSession(initialSession) : null,
   );
 
   const queryClient = new QueryClient();
@@ -66,32 +68,32 @@ export function AuthProvider({
     if (!initialSession) return;
 
     setIsLoggedIn(true);
-    setCompany((currentCompany) => {
-      if (currentCompany?.userId === initialSession.userId) {
-        return currentCompany;
+    setUser((currentUser) => {
+      if (currentUser?.userId === initialSession.userId) {
+        return currentUser;
       }
 
-      return createCompanyProfileFromSession(initialSession);
+      return createUserProfileFromSession(initialSession);
     });
   }, [initialSession]);
 
-  const login = (userData: CompanyProfile) => {
+  const login = (userData: UserProfile) => {
     setIsLoggedIn(true);
-    setCompany(userData);
+    setUser(userData);
   };
 
   const logout = () => {
     setIsLoggedIn(false);
-    setCompany(null);
+    setUser(null);
     queryClient.clear();
-    
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('cart_items');
+
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("cart_items");
     }
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, company, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
