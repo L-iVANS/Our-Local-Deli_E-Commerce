@@ -17,14 +17,14 @@ export default function Login() {
         {/* Mobile Logo */}
         <div className="w-full max-w-md">
           <Link href="/" className="inline-block mb-10 lg:hidden">
-            <Image 
+            {/* <Image 
               src={omegaLogo}
               alt="Omega Logo"
               width={150}
               height={50}
               className="h-auto w-auto"
               loading="eager"
-            />
+            /> */}
           </Link>
 
           {/* Login Form Component */}

@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
+import Link from "next/link";
+import { UserCircle } from "lucide-react";
 import { SearchButton } from "./SearchButton";
 import { CartButton } from "./CartButton";
 import { ProfileDropdown } from "./ProfileDropdown";
@@ -33,6 +35,8 @@ interface HeaderActionsProps {
  *   profile data and owns its own open/close state internally.
  * - Added `onLogout` prop so the parent (Header) controls the
  *   logout flow centrally (redirect, cache clear, etc.).
+ * - Added Login / Sign up buttons for logged-out users (desktop only).
+ * - Login button now shows a user icon wrapped in a white border.
  */
 export function HeaderActions({
   textColor,
@@ -56,11 +60,14 @@ export function HeaderActions({
 
   return (
     <div className="w-48 shrink-0 flex justify-end items-center gap-5">
-      <SearchButton textColor={textColor} />
-      <CartButton textColor={textColor} itemCount={cartItemCount} />
-
-      {/* Profile dropdown — desktop only (hidden on mobile, handled by MobileMenu) */}
+      {/* <SearchButton textColor={textColor} /> */}
       {isLoggedIn && (
+        <CartButton textColor={textColor} itemCount={cartItemCount} />
+      )}
+
+      {/* ── Auth section — desktop only ── */}
+      {isLoggedIn ? (
+        // Logged-in: show profile dropdown
         <ProfileDropdown
           isOpen={isProfileOpen}
           onToggle={toggleProfile}
@@ -70,6 +77,24 @@ export function HeaderActions({
           onLogout={onLogout}
           isLoggedIn={isLoggedIn}
         />
+      ) : (
+        // Logged-out: user icon + "Log in" wrapped in a white border
+        <div className="hidden md:flex items-center">
+          <Link
+            href="/login"
+            className={`
+              flex items-center gap-2
+              text-sm font-medium px-4 py-1.5 rounded-full
+              border border-white
+              hover:bg-white/10
+              transition-colors
+              ${textColor}
+            `}
+          >
+            <UserCircle className="w-5 h-5 shrink-0" />
+            Log in
+          </Link>
+        </div>
       )}
 
       {/* Mobile hamburger — always last so it stays at the far right */}

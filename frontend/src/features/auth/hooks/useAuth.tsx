@@ -8,7 +8,7 @@ import {
   ReactNode,
 } from "react";
 import type { SessionUser } from "@/lib/session";
-import { QueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface UserProfile {
   userId: number;
@@ -26,7 +26,7 @@ interface AuthContextType {
   isLoggedIn: boolean;
   user: UserProfile | null;
   login: (userData: UserProfile) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 function createUserProfileFromSession(session: SessionUser): UserProfile {
@@ -47,7 +47,7 @@ const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
   user: null,
   login: () => {},
-  logout: () => {},
+  logout: async () => {},
 });
 
 export function AuthProvider({
@@ -62,7 +62,7 @@ export function AuthProvider({
     initialSession ? createUserProfileFromSession(initialSession) : null,
   );
 
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!initialSession) return;
@@ -82,13 +82,24 @@ export function AuthProvider({
     setUser(userData);
   };
 
-  const logout = () => {
-    setIsLoggedIn(false);
-    setUser(null);
-    queryClient.clear();
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+      });
 
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("cart_items");
+      setIsLoggedIn(false);
+      setUser(null);
+
+      queryClient.clear();
+
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("cart_items");
+      }
+
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth";
 
@@ -15,20 +16,14 @@ import type { HeroVersion } from "./hooks/hooks.index";
 
 import { DesktopNav, MobileMenu, HeaderActions } from "./components";
 
-// ───────────────────────────────────────────────────────────────
-// Props
-// ───────────────────────────────────────────────────────────────
-
 interface HeaderProps {
   /** Lock the hero colour scheme to A (light) or B (dark). */
   forceTheme?: HeroVersion;
 }
 
-// ───────────────────────────────────────────────────────────────
-// Component
-// ───────────────────────────────────────────────────────────────
-
 const Header = ({ forceTheme }: HeaderProps) => {
+  const router = useRouter();
+
   // ── State & hooks ──────────────────────────────────────────
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -38,7 +33,7 @@ const Header = ({ forceTheme }: HeaderProps) => {
   const { isActiveLink, handleAnchorClick } = useScrollSpy();
 
   // Auth
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, logout } = useAuth(); // <- add logout here
   const { displayName, displayInitial } = useDisplayName(user);
 
   // Cart (placeholder until backend is wired)
@@ -53,6 +48,13 @@ const Header = ({ forceTheme }: HeaderProps) => {
     () => setIsMobileMenuOpen(false),
     [],
   );
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+    closeMobileMenu(); // close mobile menu if open
+    router.push("/");
+    router.refresh();
+  }, [logout, router, closeMobileMenu]);
 
   // ── Render ─────────────────────────────────────────────────
   return (
@@ -84,6 +86,7 @@ const Header = ({ forceTheme }: HeaderProps) => {
           isLoggedIn={isLoggedIn}
           displayName={displayName}
           displayInitial={displayInitial}
+          onLogout={handleLogout}  // <- this was missing
         />
       </div>
 

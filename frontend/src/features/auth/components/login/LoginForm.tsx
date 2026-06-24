@@ -12,10 +12,11 @@ import { PasswordField } from "./PasswordField";
 import { RememberMeField } from "./RememberMeField";
 import { SubmitButton } from "./SubmitButton";
 import { LoginFormData, LoginMutationData, LoginMutationVariables } from "./types";
+import { toast } from "sonner";
 
 export const LoginForm = () => {
   const router = useRouter();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const mountedRef = useRef(true);
@@ -33,61 +34,57 @@ export const LoginForm = () => {
       ...prev,
       [field]: value,
     }));
-    // Clear error when user starts typing
     setError("");
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
     if (!loginForm.email || !loginForm.password) {
       setError("Invalid credentials. Please try again.");
       return;
     }
 
     try {
-      const response = await loginMutation.mutateAsync({
+      await loginMutation.mutateAsync({
         emailAddress: loginForm.email,
         password: loginForm.password,
       });
 
       if (!mountedRef.current) return;
 
-      // ✅ CHANGE THIS LINE:
-      if (!response?.login?.message) {
-        setError("Login failed. Please try again.");
-        return;
-      }
+      toast.success("Welcome back!");
 
-      // Now it will actually redirect
-      router.replace("/admin/products");
-      router.refresh();
+      // ✅ Simple: Just do a hard redirect to /
+      // Middleware will automatically redirect based on role
+      window.location.href = "/";
       
     } catch (err: any) {
       if (!mountedRef.current) return;
 
       let errorMessage = "Invalid credentials. Please try again.";
-      if (err?.response) {
-        const errorData = await err.response.json().catch(() => ({}));
-        errorMessage = errorData.message || errorMessage;
+      
+      if (err?.response?.data?.message) {
+        errorMessage = err.response.data.message;
       } else if (err?.message) {
         errorMessage = err.message;
       }
       
       setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
   return (
     <>
-      <LoginLogo />
+      {/* <LoginLogo /> */}
 
       <div className="w-full max-w-md">
         <LoginHeader />
 
         <LoginErrorMessage error={error} mutationError={loginMutation.error} />
 
-        {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
           <EmailField
             value={loginForm.email}

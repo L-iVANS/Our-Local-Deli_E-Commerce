@@ -1,3 +1,4 @@
+// middleware.ts
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
@@ -8,7 +9,6 @@ function decodeJwtPayload(token: string): Record<string, any> | null {
     const parts = token.split(".");
     if (parts.length < 2) return null;
 
-    // Use a URL-safe Base64 decoder logic
     const base64Url = parts[1];
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
@@ -44,7 +44,8 @@ function getRoleFromRequest(request: NextRequest): UserRole | null {
 
 function redirectByRole(request: NextRequest, role: UserRole): NextResponse {
   if (role === "admin") return NextResponse.redirect(new URL("/admin/dashboard", request.url))
-  if (role === "partner") return NextResponse.redirect(new URL("/b2b/home", request.url))
+  // ✅ FIX: Change partner redirect to existing page
+  if (role === "partner") return NextResponse.redirect(new URL("/", request.url))
   return NextResponse.redirect(new URL("/consumer", request.url))
 }
 
@@ -52,22 +53,26 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   const role = getRoleFromRequest(request)
 
+  // ✅ Redirect logged-in users away from login page
   if (path === "/login" && role) {
     return redirectByRole(request, role)
   }
 
+  // ✅ Protect admin routes
   if (path.startsWith("/admin")) {
     if (!role || role !== "admin") {
       return NextResponse.redirect(new URL("/login", request.url))
     }
   }
 
+  // ✅ Protect b2b routes (if you have any)
   if (path.startsWith("/b2b")) {
     if (!role || role !== "partner") {
       return NextResponse.redirect(new URL("/login", request.url))
     }
   }
 
+  // ✅ Protect consumer routes
   if (path.startsWith("/consumer")) {
     if (!role || role !== "consumer") {
       return NextResponse.redirect(new URL("/login", request.url))

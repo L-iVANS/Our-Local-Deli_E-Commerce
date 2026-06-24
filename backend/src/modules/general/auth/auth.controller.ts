@@ -38,10 +38,13 @@ export class AuthController implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    setInterval(() => {
-      this.rateLimitService.cleanup();
-      this.bruteForceService.cleanup();
-    }, 5 * 60 * 1000);
+    setInterval(
+      () => {
+        this.rateLimitService.cleanup();
+        this.bruteForceService.cleanup();
+      },
+      5 * 60 * 1000,
+    );
   }
   @Get('me')
   @UseGuards(JwtAuthGuard)
@@ -135,7 +138,7 @@ export class AuthController implements OnModuleInit {
   }
 
   @Post('logout')
-  @UseGuards(JwtAuthGuard)
+  // No guard — logout must always succeed, even with a bad or expired token
   logout(@Res({ passthrough: true }) res: Response): LoginResponse {
     const isProduction =
       this.configService.get<string>('NODE_ENV') === 'production';
