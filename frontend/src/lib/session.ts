@@ -1,7 +1,11 @@
 import { cookies } from "next/headers";
 
+// session.ts
 export interface SessionUser {
   userId: number;
+  firstName: string;
+  middleName: string;
+  lastName: string;
   fullName: string;
   emailAddress: string;
   role: string;
@@ -47,9 +51,22 @@ export async function getSession(): Promise<SessionUser | null> {
     return null;
   }
 
+  const firstName = typeof payload.firstName === "string" ? payload.firstName : "";
+  const middleName = typeof payload.middleName === "string" ? payload.middleName : "";
+  const lastName = typeof payload.lastName === "string" ? payload.lastName : "";
+
+  // ✅ Build fullName from parts, or use payload.fullName if present
+  const fullName =
+    typeof payload.fullName === "string" && payload.fullName.trim()
+      ? payload.fullName
+      : `${firstName} ${middleName} ${lastName}`.replace(/\s+/g, " ").trim();
+
   return {
     userId,
-    fullName: payload.fullName as string,
+    firstName,
+    middleName,
+    lastName,
+    fullName,
     emailAddress,
     role,
   };

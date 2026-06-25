@@ -1,4 +1,4 @@
-import CatalogContainer from "@/features/public/catalog/CatalogContainer";
+import CatalogContainer from "../../../features/public/catalog/CatalogContainer";
 import { getSession } from "../../../lib/session";
 
 export const metadata = {

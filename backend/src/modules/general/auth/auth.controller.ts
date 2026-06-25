@@ -118,12 +118,15 @@ export class AuthController implements OnModuleInit {
     this.rateLimitService.reset(`login:ip:${clientIp}`);
     this.rateLimitService.reset(`login:email:${input.emailAddress}`);
 
-    const accessToken = await this.authService.login(users);
+    // ✅ Destructure the access_token from the service response
+    const { access_token } = await this.authService.login(users);
+
     const isProduction =
       this.configService.get<string>('NODE_ENV') === 'production';
     const cookieDomain = this.configService.get<string>('AUTH_COOKIE_DOMAIN');
 
-    res.cookie('access_token', accessToken, {
+    // ✅ Pass access_token (string) directly
+    res.cookie('access_token', access_token, {
       httpOnly: true,
       secure: isProduction,
       sameSite: 'lax',

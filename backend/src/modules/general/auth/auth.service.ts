@@ -32,14 +32,24 @@ export class AuthService {
     return users;
   }
 
-  async login(users: UsersTbl): Promise<string> {
+  async login(users: UsersTbl): Promise<{ access_token: string }> {
+    const fullName = [users.firstName, users.middleName, users.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+
     const payload = {
-      sub: users.userId,
       userId: users.userId,
       emailAddress: users.emailAddress,
+      firstName: users.firstName,
+      middleName: users.middleName,
+      lastName: users.lastName,
+      fullName,                        // ✅ computed manually
       role: users.role,
     };
 
-    return this.jwtService.signAsync(payload);
+    const token = this.jwtService.sign(payload);
+
+    return { access_token: token };
   }
 }

@@ -14,8 +14,63 @@ import { SubmitButton } from "./SubmitButton";
 import { LoginFormData, LoginMutationData, LoginMutationVariables } from "./types";
 import { toast } from "sonner";
 
+// ─── Helper: decode JWT from cookie ───────────────────────────────────────────
+function getAccessTokenFromCookie(): string | null {
+  if (typeof document === "undefined") return null;
+
+  const cookies = document.cookie.split(";");
+  for (const cookie of cookies) {
+    const [key, value] = cookie.trim().split("=");
+    if (key === "access_token") {
+      return decodeURIComponent(value);
+    }
+  }
+  return null;
+}
+
+function decodeJwtPayload(token: string): Record<string, any> | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length < 2) return null;
+
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("JWT Decode Error:", error);
+    return null;
+  }
+}
+
+function getRoleFromCookie(): string | null {
+  const token = getAccessTokenFromCookie();
+  if (!token) return null;
+
+  const payload = decodeJwtPayload(token);
+  const role = payload?.role;
+
+  if (typeof role !== "string") return null;
+
+  return role.toLowerCase();
+}
+
+function getRedirectPathByRole(role: string | null): string {
+  if (role === "admin") return "/admin/dashboard";
+  if (role === "partner") return "/consumer/home";
+  if (role === "consumer") return "/consumer/home";
+  return "/login"; // fallback
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+
 export const LoginForm = () => {
-  const router = useRouter();
   const { isLoggedIn, user } = useAuth();
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
@@ -29,7 +84,10 @@ export const LoginForm = () => {
     remember: false,
   });
 
-  const handleInputChange = (field: keyof LoginFormData, value: string | boolean) => {
+  const handleInputChange = (
+    field: keyof LoginFormData,
+    value: string | boolean
+  ) => {
     setLoginForm((prev) => ({
       ...prev,
       [field]: value,
@@ -54,23 +112,29 @@ export const LoginForm = () => {
 
       if (!mountedRef.current) return;
 
+      // ── Give browser a tick to set the cookie, then read role ──
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const role = getRoleFromCookie();
+      const redirectPath = getRedirectPathByRole(role);
+
+      console.log("[LoginForm] Detected role:", role);
+      console.log("[LoginForm] Redirecting to:", redirectPath);
+
       toast.success("Welcome back!");
 
-      // ✅ Simple: Just do a hard redirect to /
-      // Middleware will automatically redirect based on role
-      window.location.href = "/";
-      
+      window.location.href = redirectPath;
     } catch (err: any) {
       if (!mountedRef.current) return;
 
       let errorMessage = "Invalid credentials. Please try again.";
-      
+
       if (err?.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err?.message) {
         errorMessage = err.message;
       }
-      
+
       setError(errorMessage);
       toast.error(errorMessage);
     }
@@ -83,7 +147,10 @@ export const LoginForm = () => {
       <div className="w-full max-w-md">
         <LoginHeader />
 
-        <LoginErrorMessage error={error} mutationError={loginMutation.error} />
+        <LoginErrorMessage
+          error={error}
+          mutationError={loginMutation.error}
+        />
 
         <form onSubmit={handleLogin} className="space-y-4">
           <EmailField
