@@ -7,7 +7,7 @@ import type { Order } from "../types/order";
 import { OrderDetails } from "./OrderDetails";
 import { OrderRowInfo } from "./Row-Container/OrderRowInfo";
 import { OrderRowActions } from "./Row-Container/OrderRowActions";
-import { PaymentProofUploadModal } from "../../../../components/modals/Payment-Proof";
+import { PaymentProofUploadModal } from "@/components/modals/Payment-Proof/PaymentProofUploadModal";
 import { PaymongoCheckoutModal } from "@/features/b2b/checkout";
 import { useCancelOrder } from "../hooks/use-cancel-order";
 import { Upload, Eye, ChevronUp, ChevronDown, RotateCcw, CreditCard } from 'lucide-react';

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { PaymentProofUploadModal } from "@/components/modals/Payment-Proof";
+import { PaymentProofUploadModal } from "@/components/modals/Payment-Proof/PaymentProofUploadModal";
 import { OrderSuccessHeader } from "./OrderSuccessHeader";
 import { OrderReferenceBox } from "./OrderReferenceBox";
 import { TotalAmountBox } from "./TotalAmountBox";
@@ -11,6 +11,7 @@ import { BankTransferDetails } from "./BankTransferDetails";
 import { OrderNextSteps } from "./OrderNextSteps";
 import { OrderSuccessActions } from "./OrderSuccessActions";
 import { SupportFooter } from "./SupportFooter";
+
 
 const RED = "#bf262f";
 const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/$/, "");

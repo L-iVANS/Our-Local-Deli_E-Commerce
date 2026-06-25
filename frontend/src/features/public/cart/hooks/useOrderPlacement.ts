@@ -106,10 +106,10 @@ export const useOrderPlacement = (
           });
           setShowModal(false);
           return;
-        }
+        } 
 
         router.push(
-          `/b2b/order-success?orderNumber=${result.orderNumber}&orderId=${result.orderId}&grandTotal=${grandTotal}`,
+          `/consumer/order-success?orderNumber=${result.orderNumber}&orderId=${result.orderId}&grandTotal=${grandTotal}`,
         );
       } catch (error) {
         let errorMessage = "Failed to place order";
