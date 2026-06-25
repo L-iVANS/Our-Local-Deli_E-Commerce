@@ -8,8 +8,11 @@ export default function ConsumerLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col bg-white">
-      <Header forceTheme="A" />
-      <main className="flex-1">{children}</main>
+      <Header />
+
+      {/* Add pt-[160px] here. Adjust the pixel value until it perfectly clears the header */}
+      <main className="min-h-screen pt-[140px] sm:pt-[180px]">{children}</main>
+
       <Footer />
     </div>
   );

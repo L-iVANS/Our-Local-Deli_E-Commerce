@@ -119,9 +119,7 @@ export class OrdersController {
   @Post('admin/orders/:orderId/approve-payment-proof')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
-  async approvePaymentProof(
-    @Param('orderId', ParseIntPipe) orderId: number,
-  ) {
+  async approvePaymentProof(@Param('orderId', ParseIntPipe) orderId: number) {
     return await this.ordersService.approvePaymentProof(orderId);
   }
 
@@ -141,15 +139,11 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   async placeOrder(@Body() input: PlaceOrderDto, @Req() req: Request) {
     const authUser = (req as any).user;
-    const userId = authUser?.userId;
-    if (!userId) throw new ForbiddenException('Not authenticated');
 
-    const orderInput = {
+    return this.ordersService.placeOrder({
       ...input,
-      userId,
-    };
-
-    return await this.ordersService.placeOrder(orderInput);
+      userId: authUser.userId,
+    });
   }
 
   @Post('orders/:orderId/paymongo/checkout')

@@ -118,7 +118,7 @@ export function ProfileDropdown({
             <DisabledItem icon={<Users size={15} />} label="My Sales Agents" />
 
             <Link
-              href="/orders"
+              href="/consumer/my-orders"
               onClick={onClose}
               className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
             >

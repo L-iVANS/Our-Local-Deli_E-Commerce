@@ -7,7 +7,10 @@ interface DeliveryFormProps {
   errors: Partial<DeliveryDetails>;
   minDeliveryDate: string;
   primaryAddress?: string;
-  onDeliveryChange: (field: keyof DeliveryDetails, value: string | boolean) => void;
+  onDeliveryChange: (
+    field: keyof DeliveryDetails,
+    value: string | boolean,
+  ) => void;
 }
 
 const BLUE_COLOR = "#3b82f6";
@@ -20,13 +23,18 @@ export function DeliveryForm({
   onDeliveryChange,
 }: DeliveryFormProps) {
   const handleContactNumberChange = (value: string) => {
-    const digitsOnly = value.replace(/\D/g, "").slice(0, 11);
+    let digits = value.replace(/\D/g, "");
 
-    if (digitsOnly.length === 1 && digitsOnly !== "0") return;
-    if (digitsOnly.length === 2 && digitsOnly !== "09") return;
-    if (digitsOnly.length > 2 && !digitsOnly.startsWith("09")) return;
+    // Handle +63 format - convert to 09
+    if (digits.startsWith("63")) {
+      digits = "0" + digits.slice(2);
+    }
 
-    onDeliveryChange("contactNumber", digitsOnly);
+    // Limit to 11 digits
+    digits = digits.slice(0, 11);
+
+    // Always update state (validation happens on submit, not on typing)
+    onDeliveryChange("contactNumber", digits);
   };
 
   const handleDeliveryDateChange = (value: string) => {
@@ -43,7 +51,9 @@ export function DeliveryForm({
     onDeliveryChange("deliveryDate", value);
   };
 
-  const handleDeliveryDateKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+  const handleDeliveryDateKeyDown = (
+    event: KeyboardEvent<HTMLInputElement>,
+  ) => {
     const allowedKeys = [
       "Tab",
       "Escape",
@@ -73,7 +83,12 @@ export function DeliveryForm({
       {/* Address Selection - Radio Buttons */}
       <div className="space-y-3">
         {/* Radio 1: Use Registered Address */}
-        <label className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors" style={{ borderColor: delivery.usePrimaryAddress ? BLUE_COLOR : "#e5e7eb" }}>
+        <label
+          className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+          style={{
+            borderColor: delivery.usePrimaryAddress ? BLUE_COLOR : "#e5e7eb",
+          }}
+        >
           <input
             type="radio"
             name="addressOption"
@@ -83,17 +98,26 @@ export function DeliveryForm({
             style={{ accentColor: BLUE_COLOR }}
           />
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-medium text-gray-700">Use Registered Address</div>
+            <div className="text-xs font-medium text-gray-700">
+              Use Registered Address
+            </div>
             {primaryAddress ? (
               <div className="text-xs text-gray-600 mt-1">{primaryAddress}</div>
             ) : (
-              <div className="text-xs text-gray-400 italic">No registered address on file</div>
+              <div className="text-xs text-gray-400 italic">
+                No registered address on file
+              </div>
             )}
           </div>
         </label>
 
         {/* Radio 2: Type an Address */}
-        <label className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors" style={{ borderColor: !delivery.usePrimaryAddress ? BLUE_COLOR : "#e5e7eb" }}>
+        <label
+          className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors"
+          style={{
+            borderColor: !delivery.usePrimaryAddress ? BLUE_COLOR : "#e5e7eb",
+          }}
+        >
           <input
             type="radio"
             name="addressOption"
@@ -102,7 +126,9 @@ export function DeliveryForm({
             className="h-3 w-3 mt-0.5 shrink-0 cursor-pointer"
             style={{ accentColor: BLUE_COLOR }}
           />
-          <div className="text-xs font-medium text-gray-700">Type a Different Address</div>
+          <div className="text-xs font-medium text-gray-700">
+            Type a Different Address
+          </div>
         </label>
 
         {/* Address Input - Only show when 2nd radio is selected */}
@@ -137,7 +163,9 @@ export function DeliveryForm({
             onChange={(e) => onDeliveryChange("contactPerson", e.target.value)}
             placeholder="Name"
             className="w-full px-3 py-2.5 border rounded-xl text-sm focus:outline-none"
-            style={{ borderColor: errors.contactPerson ? "#ef4444" : "#e5e7eb" }}
+            style={{
+              borderColor: errors.contactPerson ? "#ef4444" : "#e5e7eb",
+            }}
           />
           {errors.contactPerson && (
             <p className="text-red-500 text-xs mt-1">{errors.contactPerson}</p>
@@ -155,7 +183,9 @@ export function DeliveryForm({
             inputMode="numeric"
             maxLength={11}
             className="w-full px-3 py-2.5 border rounded-xl text-sm focus:outline-none"
-            style={{ borderColor: errors.contactNumber ? "#ef4444" : "#e5e7eb" }}
+            style={{
+              borderColor: errors.contactNumber ? "#ef4444" : "#e5e7eb",
+            }}
           />
           {errors.contactNumber && (
             <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>

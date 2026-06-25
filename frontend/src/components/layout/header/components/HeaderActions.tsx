@@ -1,108 +1,48 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React from "react";
 import Link from "next/link";
-import { UserCircle } from "lucide-react";
-import { SearchButton } from "./SearchButton";
-import { CartButton } from "./CartButton";
-import { ProfileDropdown } from "./ProfileDropdown";
-import { MobileMenuToggle } from "./MobileMenuToggle";
-
-// ─────────────────────────────────────────────────────────────
-// Props
-// ─────────────────────────────────────────────────────────────
+import { User, ShoppingCart } from "lucide-react";
 
 interface HeaderActionsProps {
-  textColor: string;
-  cartItemCount: number;
-  isMobileMenuOpen: boolean;
-  onMobileMenuToggle: () => void;
-  isLoggedIn: boolean;
-  displayName: string;
-  displayInitial: string;
-  onLogout: () => void;
+  cartItemCount?: number;
+  isLoggedIn?: boolean;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────────────────────
-
-/**
- * Right-side action bar: search, cart, profile dropdown, mobile toggle.
- *
- * Changes from the previous version:
- * - `UserBadge` replaced by `ProfileDropdown` — it fetches enriched
- *   profile data and owns its own open/close state internally.
- * - Added `onLogout` prop so the parent (Header) controls the
- *   logout flow centrally (redirect, cache clear, etc.).
- * - Added Login / Sign up buttons for logged-out users (desktop only).
- * - Login button now shows a user icon wrapped in a white border.
- */
-export function HeaderActions({
-  textColor,
-  cartItemCount,
-  isMobileMenuOpen,
-  onMobileMenuToggle,
-  isLoggedIn,
-  displayName,
-  displayInitial,
-  onLogout,
-}: HeaderActionsProps) {
-  // ProfileDropdown open state lives here, not in Header,
-  // because only HeaderActions and ProfileDropdown care about it.
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-
-  const toggleProfile = useCallback(
-    () => setIsProfileOpen((prev) => !prev),
-    [],
-  );
-  const closeProfile = useCallback(() => setIsProfileOpen(false), []);
-
+export const HeaderActions = ({
+  cartItemCount = 3,
+  isLoggedIn = false,
+}: HeaderActionsProps) => {
   return (
-    <div className="w-48 shrink-0 flex justify-end items-center gap-5">
-      {/* <SearchButton textColor={textColor} /> */}
-      {isLoggedIn && (
-        <CartButton textColor={textColor} itemCount={cartItemCount} />
-      )}
+    <div className="flex items-center gap-7 flex-shrink-0">
+      {/* My Account */}
+      <Link
+        href={isLoggedIn ? "/account" : "/login"}
+        className="flex items-center gap-2 text-[#C9A96E] hover:text-white transition-colors text-sm font-medium"
+      >
+        <User className="w-[18px] h-[18px]" />
+        <span className="hidden md:inline">My Account</span>
+      </Link>
 
-      {/* ── Auth section — desktop only ── */}
-      {isLoggedIn ? (
-        // Logged-in: show profile dropdown
-        <ProfileDropdown
-          isOpen={isProfileOpen}
-          onToggle={toggleProfile}
-          onClose={closeProfile}
-          fallbackName={displayName}
-          fallbackInitial={displayInitial}
-          onLogout={onLogout}
-          isLoggedIn={isLoggedIn}
-        />
-      ) : (
-        // Logged-out: user icon + "Log in" wrapped in a white border
-        <div className="hidden md:flex items-center">
-          <Link
-            href="/login"
-            className={`
-              flex items-center gap-2
-              text-sm font-medium px-4 py-1.5 rounded-full
-              border border-white
-              hover:bg-white/10
-              transition-colors
-              ${textColor}
-            `}
+      {/* Cart */}
+      <Link
+        href="/cart"
+        className="relative flex items-center gap-2 text-[#C9A96E] hover:text-white transition-colors text-sm font-medium pr-2"
+      >
+        <ShoppingCart className="w-[18px] h-[18px]" />
+        <span className="hidden md:inline">Cart</span>
+        {cartItemCount > 0 && (
+          <span
+            className="
+              absolute -top-2 -right-1 bg-[#C9A96E] text-[#0C211C]
+              text-[9px] font-bold w-[17px] h-[17px] rounded-full
+              flex items-center justify-center leading-none
+            "
           >
-            <UserCircle className="w-5 h-5 shrink-0" />
-            Log in
-          </Link>
-        </div>
-      )}
-
-      {/* Mobile hamburger — always last so it stays at the far right */}
-      <MobileMenuToggle
-        isOpen={isMobileMenuOpen}
-        textColor={textColor}
-        onToggle={onMobileMenuToggle}
-      />
+            {cartItemCount > 99 ? "99+" : cartItemCount}
+          </span>
+        )}
+      </Link>
     </div>
   );
-}
+};

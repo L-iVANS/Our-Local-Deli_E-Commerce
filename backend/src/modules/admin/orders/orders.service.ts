@@ -398,7 +398,11 @@ ${attemptsLeft > 0 ? `Please upload a valid proof. Attempts left: ${attemptsLeft
     return updatedOrder;
   }
 
-  async placeOrder(placeOrderDto: PlaceOrderDto): Promise<PlaceOrderResponse> {
+  async placeOrder(
+    placeOrderDto: PlaceOrderDto & {
+      userId: number;
+    },
+  ): Promise<PlaceOrderResponse> {
     const orderNumber = `OMG-${randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()}`;
 
     const productIds = placeOrderDto.items.map((item) => item.productId);
@@ -436,7 +440,9 @@ ${attemptsLeft > 0 ? `Please upload a valid proof. Attempts left: ${attemptsLeft
         usePrimaryAddress: isFirstItem
           ? placeOrderDto.delivery.usePrimaryAddress
           : undefined,
-        deliveryAddress: isFirstItem ? placeOrderDto.delivery.address : undefined,
+        deliveryAddress: isFirstItem
+          ? placeOrderDto.delivery.address
+          : undefined,
         contactPerson: isFirstItem
           ? placeOrderDto.delivery.contactPerson
           : undefined,
@@ -708,7 +714,10 @@ Total: PHP ${placeOrderDto.grandTotal?.toLocaleString()}`,
     return groupedOrders.length > 0 ? groupedOrders : [targetOrder];
   }
 
-  async savePaymentProof(orderId: number, filename: string): Promise<OrdersTbl> {
+  async savePaymentProof(
+    orderId: number,
+    filename: string,
+  ): Promise<OrdersTbl> {
     const order = await this.ordersRepository.findOne({
       where: { orderId },
       relations: { user: true },
@@ -1024,9 +1033,7 @@ Total: PHP ${placeOrderDto.grandTotal?.toLocaleString()}`,
       this.logger.error(
         `Invalid order amount calculation: grandTotal=${order.grandTotal}, totalPrice=${order.totalPrice}, deliveryFee=${order.deliveryFee}, computed=${totalAmount}`,
       );
-      throw new BadRequestException(
-        `Invalid order amount: PHP ${totalAmount}`,
-      );
+      throw new BadRequestException(`Invalid order amount: PHP ${totalAmount}`);
     }
 
     this.logger.log(
@@ -1098,13 +1105,13 @@ Total: PHP ${placeOrderDto.grandTotal?.toLocaleString()}`,
   }
 
   async confirmPaymongoPayment(orderId: number): Promise<OrdersTbl> {
-    const { targetOrder, groupedOrders } = await this.getOrderGroupFromOrderId(
-      orderId,
-    );
+    const { targetOrder, groupedOrders } =
+      await this.getOrderGroupFromOrderId(orderId);
 
     const primaryOrder =
-      groupedOrders.find((o) => o.grandTotal != null || o.deliveryFee != null) ||
-      targetOrder;
+      groupedOrders.find(
+        (o) => o.grandTotal != null || o.deliveryFee != null,
+      ) || targetOrder;
 
     const subtotal = groupedOrders.reduce(
       (sum, item) => sum + Number(item.totalPrice || 0),
@@ -1141,7 +1148,10 @@ Total: PHP ${placeOrderDto.grandTotal?.toLocaleString()}`,
         `Order #${orderId} payment confirmed via PayMongo. Status: AWAITING_PAYMENT_VERIFICATION`,
       );
     } catch (err) {
-      this.logger.error(`Failed to update invoice for Order #${orderId}:`, err as Error);
+      this.logger.error(
+        `Failed to update invoice for Order #${orderId}:`,
+        err as Error,
+      );
     }
 
     return updatedOrder;

@@ -1,90 +1,43 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/features/auth";
+import { TopBar } from "./components/TopBar";
+import { MainRow } from "./components/MainRow";
+import { NavRow } from "./components/NavRow";
+import { MobileMenu } from "./components/MobileMenu";
+import { useScrollState } from "./hooks/useScrollState";
+import { useAuth } from "@/features/auth/hooks/useAuth"; // ✅ exact path
 
-import {
-  useScrollState,
-  useHeroVersion,
-  useScrollSpy,
-  useHeaderTheme,
-  useDisplayName,
-} from "./hooks/hooks.index";
-import type { HeroVersion } from "./hooks/hooks.index";
-
-import { DesktopNav, MobileMenu, HeaderActions } from "./components";
-
-interface HeaderProps {
-  forceTheme?: HeroVersion;
-}
-
-const Header = ({ forceTheme }: HeaderProps) => {
-  const router = useRouter();
-
+const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   const isScrolled = useScrollState();
-  const heroVersion = useHeroVersion(forceTheme);
-  const { textColor } = useHeaderTheme(isScrolled, heroVersion);
-  const { isActiveLink, handleAnchorClick } = useScrollSpy();
 
-  const { isLoggedIn, user, logout } = useAuth();
-  const { displayName, displayInitial } = useDisplayName(user);
+  const { isLoggedIn, logout } = useAuth();
 
-  const cartItemCount = 0;
+  const handleLogout = useCallback(async () => {
+    await logout();
+  }, [logout]);
 
   const toggleMobileMenu = useCallback(
     () => setIsMobileMenuOpen((prev) => !prev),
     [],
   );
 
-  const closeMobileMenu = useCallback(
-    () => setIsMobileMenuOpen(false),
-    [],
-  );
-
-  const handleLogout = useCallback(async () => {
-    await logout(); // ✅ already handles redirect via window.location.href
-  }, [logout]);
+  const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
 
   return (
-    <header
-      className={cn(
-        "fixed top-0 w-full z-50 transition-all duration-300",
-        isScrolled
-          ? "bg-white/80 backdrop-blur-xl shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] py-3"
-          : "bg-transparent py-5",
-      )}
-    >
-      <div className="container mx-auto px-6 flex items-center">
-        <div className="w-48 shrink-0">{/* Empty until logo is ready */}</div>
-
-        <DesktopNav
-          textColor={textColor}
-          isActiveLink={isActiveLink}
-          onAnchorClick={handleAnchorClick}
-        />
-
-        <HeaderActions
-          textColor={textColor}
-          cartItemCount={cartItemCount}
-          isMobileMenuOpen={isMobileMenuOpen}
-          onMobileMenuToggle={toggleMobileMenu}
-          isLoggedIn={isLoggedIn}
-          displayName={displayName}
-          displayInitial={displayInitial}
-          onLogout={handleLogout}
-        />
+    <header className="fixed top-0 left-0 w-full z-50 bg-[#0C211C] transition-all duration-300 shadow-md">
+      <div className="hidden lg:block">
+        <TopBar />
       </div>
-
-      <MobileMenu
-        isOpen={isMobileMenuOpen}
-        isActiveLink={isActiveLink}
-        onAnchorClick={handleAnchorClick}
-        onClose={closeMobileMenu}
+      <MainRow
+        isMobileMenuOpen={isMobileMenuOpen}
+        onToggleMobileMenu={toggleMobileMenu}
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
       />
+      <NavRow />
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={closeMobileMenu} />
     </header>
   );
 };

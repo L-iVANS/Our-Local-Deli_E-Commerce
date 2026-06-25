@@ -16,7 +16,7 @@ export const useOrderPlacement = (
   delivery: DeliveryDetails,
   currentCompany: CartAuthCompany | null,
   removeItems: (ids: string[]) => void,
-  setErrors: (errors: Partial<DeliveryDetails>) => void
+  setErrors: (errors: Partial<DeliveryDetails>) => void,
 ) => {
   const router = useRouter();
   const [placing, setPlacing] = useState(false);
@@ -36,7 +36,7 @@ export const useOrderPlacement = (
   const handlePlaceOrder = useCallback(
     async (
       paymentMethod: "e-payment" | "manual_transfer",
-      validateForm: () => boolean
+      validateForm: () => boolean,
     ) => {
       if (selectedItems.length === 0) {
         setErrors({ notes: "Select at least one item to checkout." });
@@ -81,12 +81,12 @@ export const useOrderPlacement = (
 
         console.log(
           "[useOrderPlacement] Sending request with payload:",
-          JSON.stringify(payload, null, 2)
+          JSON.stringify(payload, null, 2),
         );
 
         // ✅ Direct call — no more { variables: { input: ... } } Apollo wrapper
         const result = await placeOrderMutation(payload);
-
+        // console.log("[PLACE ORDER PAYLOAD]", JSON.stringify(payload, null, 2));
         console.log("[useOrderPlacement] Response:", result);
 
         // ✅ Flat response — no more responseData?.placeOrder nesting
@@ -109,7 +109,7 @@ export const useOrderPlacement = (
         }
 
         router.push(
-          `/b2b/order-success?orderNumber=${result.orderNumber}&orderId=${result.orderId}&grandTotal=${grandTotal}`
+          `/b2b/order-success?orderNumber=${result.orderNumber}&orderId=${result.orderId}&grandTotal=${grandTotal}`,
         );
       } catch (error) {
         let errorMessage = "Failed to place order";
@@ -121,10 +121,7 @@ export const useOrderPlacement = (
             name: error.name,
           });
         } else {
-          console.error(
-            "[useOrderPlacement] Unknown error:",
-            String(error)
-          );
+          console.error("[useOrderPlacement] Unknown error:", String(error));
         }
 
         setErrors({ notes: errorMessage });
@@ -142,7 +139,7 @@ export const useOrderPlacement = (
       router,
       setErrors,
       placeOrderMutation,
-    ]
+    ],
   );
 
   const handleCloseModal = useCallback(() => {

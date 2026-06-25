@@ -10,10 +10,10 @@ import { Type } from 'class-transformer';
 
 export class OrderItemInput {
   @IsNotEmpty()
-  productId: number;
+  productId!: number;
 
   @IsNotEmpty()
-  quantity: number;
+  quantity!: number;
 
   @IsOptional()
   @IsNumber()
@@ -34,6 +34,7 @@ export class DeliveryDetailsInput {
   contactNumber?: string;
 
   @IsOptional()
+  @Type(() => Date)
   deliveryDate?: Date;
 
   @IsOptional()
@@ -48,24 +49,24 @@ export class PlaceOrderDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => OrderItemInput)
-  items: OrderItemInput[];
+  items!: OrderItemInput[];
 
   @ValidateNested()
   @Type(() => DeliveryDetailsInput)
-  delivery: DeliveryDetailsInput;
+  delivery!: DeliveryDetailsInput;
 
   @IsNumber()
-  subtotal: number;
+  subtotal!: number;
 
   @IsNumber()
-  deliveryFee: number;
+  deliveryFee!: number;
 
   @IsNumber()
-  grandTotal: number;
+  grandTotal!: number;
 
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+  // @IsNotEmpty()
+  // @IsNumber()
+  // userId!: number;
 
   // @IsOptional()
   // @IsString()
@@ -73,5 +74,5 @@ export class PlaceOrderDto {
 
   @IsNotEmpty()
   @IsString()
-  paymentMethod: string;
+  paymentMethod!: string;
 }

@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+import { BadRequestException } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -67,6 +68,20 @@ async function bootstrap() {
   // });
 
   await app.listen(process.env.PORT ?? 4000);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+      exceptionFactory: (errors) => {
+        console.log('VALIDATION ERRORS:', JSON.stringify(errors, null, 2));
+
+        return new BadRequestException(errors);
+      },
+    }),
+  );
 }
 
 bootstrap();

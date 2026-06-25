@@ -2,6 +2,8 @@
 
 :root {
   --font-size: 16px;
+  
+  /* Light mode (kept for reference) */
   --background: #F4F4F0;
   --foreground: oklch(0.145 0 0);
   --card: #F4F4F0;
@@ -25,57 +27,58 @@
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
   --radius: 0.625rem;
-  --sidebar: #F4F4F0;
-  --sidebar-foreground: #0A3A2B;
-  --sidebar-primary: #0A3A2B;
-  --sidebar-primary-foreground: #F4F4F0;
-  --sidebar-accent: #A8844C;
-  --sidebar-accent-foreground: #0A3A2B;
-  --sidebar-border: #0A3A2B;
-  --sidebar-ring: #A8844C;
+
+  /* Gold palette */
+  --gold: #C9A96E;
+  --gold-light: #D9B56A;
+  --gold-dark: #A8844C;
 }
 
 .dark {
-  --background: #002B1D;
+  /* === MAIN DARK THEME (matches the image) === */
+  --background: #0C211C;
   --foreground: #F4F4F0;
-  --card: #002B1D;
+  --card: #0F2823;
   --card-foreground: #F4F4F0;
-  --popover: #002B1D;
+  --popover: #0C211C;
   --popover-foreground: #F4F4F0;
+  
   --primary: #0A3A2B;
   --primary-foreground: #F4F4F0;
-  --secondary: #0A3A2B;
-  --secondary-foreground: #A8844C;
+  
+  --secondary: #0F2823;
+  --secondary-foreground: #C9A96E;
+  
   --muted: #0A3A2B;
-  --muted-foreground: #A8844C;
-  --accent: #A8844C;
+  --muted-foreground: #C9A96E;
+  
+  --accent: #C9A96E;
   --accent-foreground: #0A3A2B;
-  --destructive: #A8844C;
+  
+  --destructive: #C9A96E;
   --destructive-foreground: #F4F4F0;
-  --border: #0A3A2B;
+  
+  --border: #1F3C35;
   --input: #0A3A2B;
-  --ring: #A8844C;
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: #002B1D;
+  --input-background: #0F2823;
+  --switch-background: #0A3A2B;
+  --ring: #C9A96E;
+
+  /* Sidebar */
+  --sidebar: #0C211C;
   --sidebar-foreground: #F4F4F0;
   --sidebar-primary: #0A3A2B;
   --sidebar-primary-foreground: #F4F4F0;
   --sidebar-accent: #0A3A2B;
-  --sidebar-accent-foreground: #A8844C;
-  --sidebar-border: #0A3A2B;
-  --sidebar-ring: #A8844C;
+  --sidebar-accent-foreground: #C9A96E;
+  --sidebar-border: #1F3C35;
+  --sidebar-ring: #C9A96E;
+
+  /* Gold */
+  --gold: #C9A96E;
+  --gold-light: #D9B56A;
+  --gold-dark: #A8844C;
 }
 
 @theme inline {
@@ -100,11 +103,6 @@
   --color-input-background: var(--input-background);
   --color-switch-background: var(--switch-background);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -117,6 +115,10 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-dark: var(--gold-dark);
 }
 
 @layer base {
@@ -128,59 +130,45 @@
     @apply bg-background text-foreground;
   }
 
-  /**
-  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
-  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
-  */
-
   html {
     font-size: var(--font-size);
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
-  h1 {
-    font-size: var(--text-2xl);
+  /* === TYPOGRAPHY (matches image) === */
+  h1, h2, h3, h4, label {
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
-    color: #D9B56A;
+    color: var(--gold-light);
   }
 
-  h2 {
-    font-size: var(--text-xl);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-    color: #D9B56A;
-  }
-
-  h3 {
-    font-size: var(--text-lg);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-    color: #D9B56A;
-  }
-
-  h4 {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-    color: #D9B56A;
-  }
+  h1 { font-size: var(--text-2xl); }
+  h2 { font-size: var(--text-xl); }
+  h3 { font-size: var(--text-lg); }
+  h4 { font-size: var(--text-base); }
 
   label {
     font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-    color: #D9B56A;
+    color: var(--gold);
   }
 
   button {
+    font-family: 'Inter', system-ui, sans-serif;
     font-size: var(--text-base);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
   }
 
   input {
+    font-family: 'Inter', system-ui, sans-serif;
     font-size: var(--text-base);
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
+  }
+
+  /* Extra consistency for common elements */
+  .text-muted-foreground {
+    color: var(--muted-foreground);
   }
 }
