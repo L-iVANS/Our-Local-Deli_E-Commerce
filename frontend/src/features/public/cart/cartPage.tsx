@@ -87,7 +87,7 @@ export function Cart() {
       )}
 
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 py-6 px-4">
+      <div className="bg-white border-b border-gray-100 py-6 px-4 pt-20">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
@@ -112,7 +112,7 @@ export function Cart() {
             </p>
           </div>
           <a
-            href="../app/b2b/products"
+            href="../catalog"
             className="text-sm font-semibold flex items-center gap-1.5 hover:opacity-80 transition-opacity text-accent"
           >
             + Add More Products

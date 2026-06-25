@@ -17,14 +17,12 @@ import type { HeroVersion } from "./hooks/hooks.index";
 import { DesktopNav, MobileMenu, HeaderActions } from "./components";
 
 interface HeaderProps {
-  /** Lock the hero colour scheme to A (light) or B (dark). */
   forceTheme?: HeroVersion;
 }
 
 const Header = ({ forceTheme }: HeaderProps) => {
   const router = useRouter();
 
-  // ── State & hooks ──────────────────────────────────────────
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isScrolled = useScrollState();
@@ -32,31 +30,25 @@ const Header = ({ forceTheme }: HeaderProps) => {
   const { textColor } = useHeaderTheme(isScrolled, heroVersion);
   const { isActiveLink, handleAnchorClick } = useScrollSpy();
 
-  // Auth
-  const { isLoggedIn, user, logout } = useAuth(); // <- add logout here
+  const { isLoggedIn, user, logout } = useAuth();
   const { displayName, displayInitial } = useDisplayName(user);
 
-  // Cart (placeholder until backend is wired)
   const cartItemCount = 0;
 
-  // ── Handlers ───────────────────────────────────────────────
   const toggleMobileMenu = useCallback(
     () => setIsMobileMenuOpen((prev) => !prev),
     [],
   );
+
   const closeMobileMenu = useCallback(
     () => setIsMobileMenuOpen(false),
     [],
   );
 
   const handleLogout = useCallback(async () => {
-    await logout();
-    closeMobileMenu(); // close mobile menu if open
-    router.push("/");
-    router.refresh();
-  }, [logout, router, closeMobileMenu]);
+    await logout(); // ✅ already handles redirect via window.location.href
+  }, [logout]);
 
-  // ── Render ─────────────────────────────────────────────────
   return (
     <header
       className={cn(
@@ -67,17 +59,14 @@ const Header = ({ forceTheme }: HeaderProps) => {
       )}
     >
       <div className="container mx-auto px-6 flex items-center">
-        {/* Logo placeholder */}
         <div className="w-48 shrink-0">{/* Empty until logo is ready */}</div>
 
-        {/* Desktop navigation */}
         <DesktopNav
           textColor={textColor}
           isActiveLink={isActiveLink}
           onAnchorClick={handleAnchorClick}
         />
 
-        {/* Right-side actions */}
         <HeaderActions
           textColor={textColor}
           cartItemCount={cartItemCount}
@@ -86,11 +75,10 @@ const Header = ({ forceTheme }: HeaderProps) => {
           isLoggedIn={isLoggedIn}
           displayName={displayName}
           displayInitial={displayInitial}
-          onLogout={handleLogout}  // <- this was missing
+          onLogout={handleLogout}
         />
       </div>
 
-      {/* Mobile menu */}
       <MobileMenu
         isOpen={isMobileMenuOpen}
         isActiveLink={isActiveLink}

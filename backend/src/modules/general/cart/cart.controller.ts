@@ -35,7 +35,7 @@ export class CartController {
     return await this.cartService.getCart(userId);
   }
 
-  @Post()
+  @Post('create')
   @UseGuards(JwtAuthGuard)
   async addToCart(@Req() req: Request, @Body() input: AddToCartInput) {
     const userId = (req as any).user?.userId;

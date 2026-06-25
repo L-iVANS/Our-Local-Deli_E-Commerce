@@ -10,37 +10,18 @@ import {
   UserCircle,
   KeyRound,
   LogOut,
-  Loader2,
 } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
 
-// ─────────────────────────────────────────────────────────────
-// Props
-// ─────────────────────────────────────────────────────────────
-
 interface ProfileDropdownProps {
-  /** Controls open/close state (owned by HeaderActions). */
   isOpen: boolean;
   onToggle: () => void;
   onClose: () => void;
-
-  /**
-   * Fallback values from useAuth / useDisplayName.
-   * Shown immediately while the enriched profile is loading.
-   */
   fallbackName: string;
   fallbackInitial: string;
-
-  /** Called when the user clicks Logout. */
   onLogout: () => void;
-
-  /** Whether the user is currently logged in (gates the fetch). */
   isLoggedIn: boolean;
 }
-
-// ─────────────────────────────────────────────────────────────
-// Disabled menu item — reusable so styles stay in sync
-// ─────────────────────────────────────────────────────────────
 
 function DisabledItem({
   icon,
@@ -57,20 +38,6 @@ function DisabledItem({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Component
-// ─────────────────────────────────────────────────────────────
-
-/**
- * Profile dropdown trigger + panel.
- *
- * Fetches enriched profile data from GET /users/profile via
- * TanStack Query. Falls back gracefully to the values already
- * in useAuth while the request is in flight.
- *
- * Close-on-outside-click is handled internally via a ref so
- * the parent doesn't need to set up its own listener.
- */
 export function ProfileDropdown({
   isOpen,
   onToggle,
@@ -80,11 +47,9 @@ export function ProfileDropdown({
   onLogout,
   isLoggedIn,
 }: ProfileDropdownProps) {
-  // ── Enriched profile fetch ─────────────────────────────────
-  const { profile, isLoading } = useProfile(isLoggedIn);
+  // ✅ Removed isLoading — we always have fallback data
+  const { profile } = useProfile(isLoggedIn);
 
-  // ── Derived display values ─────────────────────────────────
-  // Priority: enriched API data → fallback from useAuth/useDisplayName
   const displayName =
     profile?.fullName?.split(" ")[0]?.trim() ||
     profile?.firstName?.trim() ||
@@ -97,7 +62,6 @@ export function ProfileDropdown({
     profile?.firstName?.charAt(0)?.toUpperCase() ||
     fallbackInitial;
 
-  // ── Close on outside click ─────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -116,26 +80,19 @@ export function ProfileDropdown({
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, [isOpen, onClose]);
 
-  // ── Render ─────────────────────────────────────────────────
   return (
     <div ref={containerRef} className="relative hidden sm:block">
-      {/* ── Trigger button ── */}
       <button
         onClick={onToggle}
         className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100/60 transition-colors"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
-        {/* Avatar circle */}
+        {/* ✅ No spinner — always show the initial */}
         <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center text-sm font-semibold shrink-0">
-          {isLoading ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            displayInitial
-          )}
+          {displayInitial}
         </div>
 
-        {/* Name + email */}
         <div className="flex flex-col items-start leading-tight">
           <span className="text-sm font-medium text-accent">
             {displayName}
@@ -155,17 +112,11 @@ export function ProfileDropdown({
         />
       </button>
 
-      {/* ── Dropdown panel ── */}
       {isOpen && (
         <div className="absolute top-full right-0 pt-1 z-50 w-56">
           <div className="bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden py-1">
-            {/* — Disabled items (coming soon) — */}
             <DisabledItem icon={<Users size={15} />} label="My Sales Agents" />
 
-            {/*
-             * TODO: Update this path when the orders page is ready.
-             * Currently points to /orders as a placeholder.
-             */}
             <Link
               href="/orders"
               onClick={onClose}
@@ -176,18 +127,15 @@ export function ProfileDropdown({
             </Link>
 
             <DisabledItem icon={<FileText size={15} />} label="My Invoices" />
-
             <DisabledItem
               icon={<UserCircle size={15} />}
               label="Update Profile"
             />
-
             <DisabledItem
               icon={<KeyRound size={15} />}
               label="Change Password"
             />
 
-            {/* — Logout — */}
             <div className="border-t border-gray-100 mt-1 pt-1">
               <button
                 onClick={() => {

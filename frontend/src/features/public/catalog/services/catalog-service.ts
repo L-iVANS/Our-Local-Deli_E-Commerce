@@ -69,7 +69,7 @@ export const catalogService = {
       productId: Number(payload.productId),
       quantity: Number(payload.quantity),
     };
-    return api.post("cart", { json: sanitized }).json<CartItem>();
+    return api.post("cart/create", { json: sanitized }).json<CartItem>();
   },
 
   getCart: async (): Promise<CartResponse> => {

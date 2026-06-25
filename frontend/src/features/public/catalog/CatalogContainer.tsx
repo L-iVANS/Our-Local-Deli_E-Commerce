@@ -4,8 +4,6 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useCatalogProducts } from "@/features/public/catalog/hooks/useCatalogProducts";
 import { useSearchParams } from "next/navigation";
 import { productsData } from "@/data/products";
-import Header from "@/components/layout/header/Header";
-import Footer from "@/components/layout/Footer";
 import CatalogHeader from "./components/CatalogHeader";
 import FilterPanel from "./components/FilterPanel";
 import ViewToggle from "./components/ViewToggle";
@@ -15,7 +13,6 @@ import ProductModal from "./components/ProductModal";
 import type { Product } from "@/src/data/products";
 import { motion, AnimatePresence } from "framer-motion";
 import LoginModal from "./components/LoginModal";
-// import { useCurrentUser } from "../catalog/hooks/useCurrentUser";
 import type { SessionUser } from "../../../lib/session";
 import { useCurrentUser } from "./hooks/useCurrentUser";
 
@@ -26,7 +23,6 @@ interface CatalogContainerProps {
 const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
   const searchParams = useSearchParams();
 
-  // // ✅ Replaces the broken getUserIdFromCookie + useState approach
   const { user, refresh: refreshUser } = useCurrentUser(initialUser);
   const userId = user?.userId;
 
@@ -66,9 +62,9 @@ const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
         retailPrice: p.retailPrice ?? p.productPrice ?? p.price,
         imageUrl: p.imageUrl ?? p.image,
         category: String(
-          p.category?.slug ?? // ✅ first choice: use slug directly ("frozen-meat")
-            p.category?.categoryName ?? // ✅ second choice: normalize the name
-            p.categoryName ?? // fallback for flat shapes
+          p.category?.slug ??
+            p.category?.categoryName ??
+            p.categoryName ??
             "",
         )
           .toLowerCase()
@@ -127,7 +123,7 @@ const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
     }
   }, [products, categories, searchParams]);
 
-  // Filtering & Sorting Logic
+  // Filtering & Sorting
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
@@ -166,9 +162,8 @@ const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
 
   const handleLoginSuccess = () => {
     setLoginModalOpen(false);
-    refreshUser(); // ✅ calls GET /auth/me → gets real userId via httpOnly cookie
+    refreshUser();
 
-    // ✅ Re-open product modal so user can immediately add to cart
     if (pendingProduct) {
       setSelectedProduct(pendingProduct);
       setIsModalOpen(true);
@@ -177,9 +172,7 @@ const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
   };
 
   return (
-    <div className="flex flex-col w-full bg-white min-h-screen">
-      <Header forceTheme="A" />
-
+    <div className="flex flex-col w-full">
       <CatalogHeader
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -282,21 +275,19 @@ const CatalogContainer = ({ initialUser }: CatalogContainerProps) => {
         </div>
       </main>
 
-      <Footer />
-
       <ProductModal
         product={selectedProduct}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        userId={userId} // ✅ real number after login, undefined when logged out
+        userId={userId}
         onRequireLogin={handleRequireLogin}
-        onCartUpdate={refreshUser} // ✅ keeps session fresh
+        onCartUpdate={refreshUser}
       />
 
       <LoginModal
         isOpen={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
-        onLoginSuccess={handleLoginSuccess} // ✅ triggers refreshUser → userId updates
+        onLoginSuccess={handleLoginSuccess}
         triggerContext={{
           action: "add-to-cart",
           productName: pendingProduct?.productName,
