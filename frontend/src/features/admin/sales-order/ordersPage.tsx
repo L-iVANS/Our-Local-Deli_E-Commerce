@@ -17,6 +17,8 @@ import { getStatusLabel, getStatusColor } from "@/utils/statusMapper";
 import { SalesOrder } from "../../../types/types";
 import { toast } from "sonner";
 import { toOrderStatus } from '@/utils/orderStatus';
+import { SearchInput } from "../../../features/admin/products/components/SearchInput";
+import { FilterDropdown } from "../../../features/admin/products/components/FilterDropdown";
 
 const getDiscountRate = (itemCount: number) => {
   if (itemCount <= 0) return 0;
@@ -388,96 +390,104 @@ export default function SalesOrdersPage() {
 
       {/* Status Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {statusCards.map(({ label, count, amount }) => (
-          <div key={label} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-            <div className="text-xs text-gray-400 mb-1">{getStatusLabel(label)}</div>
+        {statusCards.map(({ label, count, amount }) => {
+          // Smart color mapping based on status type
+          const getStatusTheme = (statusLabel: string) => {
+            const s = statusLabel.toLowerCase();
+
+            // ⚠️ Negative / problem states → red (only when count > 0)
+            if (s.includes("rejected") || s.includes("cancelled") || s.includes("failed")) {
+              return count > 0
+                ? {
+                    iconBg: "bg-red-50 dark:bg-red-950/30",
+                    valueColor: "text-red-600 dark:text-red-400",
+                  }
+                : {
+                    iconBg: "bg-primary/10 dark:bg-primary/25",
+                    valueColor: "text-primary dark:text-gold-light",
+                  };
+            }
+
+            // ⏳ Pending / waiting states → gold (premium "in motion")
+            if (s.includes("pending") || s.includes("processing") || s.includes("transit")) {
+              return {
+                iconBg: "bg-accent/15 dark:bg-accent/25",
+                valueColor: "text-accent dark:text-gold-light",
+              };
+            }
+
+            // ✅ Default (Delivered, Accepted, Active, etc.) → brand green
+            return {
+              iconBg: "bg-primary/10 dark:bg-primary/25",
+              valueColor: "text-primary dark:text-gold-light",
+            };
+          };
+
+          const { iconBg, valueColor } = getStatusTheme(label);
+
+          return (
             <div
-              className="font-bold"
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: 700,
-                lineHeight: 1.2,
-                color: getStatusColor(label).text,
-              }}
+              key={label}
+              className="rounded-xl p-4 transition-all
+                        bg-white dark:bg-card
+                        border border-gray-100 dark:border-sidebar-border
+                        shadow-sm hover:shadow-md hover:-translate-y-0.5"
             >
-              {count}
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-medium text-gray-400 dark:text-muted-foreground">
+                  {getStatusLabel(label)}
+                </span>
+                {/* Small colored dot indicator (matches card theme) */}
+                <div className={`w-3 h-3 rounded-full ${iconBg}`} />
+              </div>
+
+              <div className={`font-display text-2xl font-bold leading-tight ${valueColor}`}>
+                {count.toLocaleString()}
+              </div>
+
+              <div className="text-xs mt-1 text-gray-400 dark:text-muted-foreground">
+                ₱{amount.toLocaleString("en-PH")}
+              </div>
             </div>
-            <div className="text-xs text-gray-400">
-              ₱{amount.toLocaleString('en-PH')}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Search, Filter & Add Button Bar */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
         <div className="flex-1 relative">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-          />
-          <input
-            type="text"
-            placeholder="Search by order number or customer..."
-            className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+          <SearchInput 
+            searchTerm={searchTerm} 
+            setSearchTerm={setSearchTerm} 
+            placeholder="Search by order number or customer. . ."
           />
         </div>
 
         <div className="relative">
-          <button
-            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            <Filter size={14} />
-            Filter
-          </button>
-
-          {showFilterDropdown && (
-            <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4 space-y-4">
-              <div>
-                <label className="text-xs font-semibold text-gray-700 mb-2 block">
-                  Status
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {["all", "PENDING_APPROVAL", "ACCEPT", "DELIVERED", "PAID"].map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => setSelectedStatus(status)}
-                      className="px-3 py-2 rounded-lg text-xs font-medium transition-all text-left"
-                      style={{
-                        backgroundColor:
-                          selectedStatus === status ? "#fdf2f2" : "#f9fafb",
-                        color:
-                          selectedStatus === status ? "#bf262f" : "#6b7280",
-                        border:
-                          selectedStatus === status
-                            ? "1px solid #bf262f"
-                            : "1px solid #e5e7eb",
-                      }}
-                    >
-                      {status === "all" ? "All Status" : getStatusLabel(status)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                onClick={() => {
-                  setSelectedStatus("all");
-                }}
-                className="w-full px-3 py-2 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors"
-              >
-                Clear Filters
-              </button>
-            </div>
-          )}
+          <FilterDropdown
+              showFilterDropdown={showFilterDropdown}
+              setShowFilterDropdown={setShowFilterDropdown}
+              sections={[
+                {
+                  label: "Status",
+                  options: ["all", "PENDING_APPROVAL", "ACCEPT", "DELIVERED", "PAID"],
+                  selected: selectedStatus,
+                  onChange: setSelectedStatus,
+                  getLabel: getStatusLabel,   // ✅ uses your existing label mapper
+                  allLabel: "All Status",
+                },
+              ]}
+              onClearAll={() => setSelectedStatus("all")}
+            />
         </div>
 
         <button
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-white text-sm font-semibold transition-all hover:opacity-90 shadow-sm"
-          style={{ backgroundColor: "#bf262f" }}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-lg
+          bg-primary text-[#F4F4F0] text-sm font-semibold
+                 shadow-sm transition-all
+                 hover:bg-primary/90 hover:shadow-md
+                 focus:outline-none focus:ring-2 focus:ring-primary/30
+                 active:scale-[0.98]"
         >
           <Plus size={14} />
           New Order

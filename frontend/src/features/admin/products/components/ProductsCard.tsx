@@ -1,65 +1,89 @@
-import { TrendingUp, Package, AlertTriangle,Zap} from "lucide-react";
+import { TrendingUp, Package, AlertTriangle, Zap } from "lucide-react";
 
+export function ProductsCard({
+  totalItems,
+  totalUnits,
+  inTransitUnits,
+  lowStockCount,
+}: {
+  totalItems: number;
+  totalUnits: number;
+  inTransitUnits: number;
+  lowStockCount: number;
+}) {
+  // ✅ Dynamic alert for low stock (only card that's truly semantic)
+  const hasLowStock = lowStockCount > 0;
 
-export function ProductsCard({totalItems, totalUnits, inTransitUnits, lowStockCount}: {totalItems: number, totalUnits: number, inTransitUnits: number, lowStockCount: number}) {
-    return (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            label: "Total Products",
-            value: totalItems,
-            icon: Package,
-            color: "#bf262f",
-            bg: "#fdf2f2",
-          },
-          {
-            label: "Total Units",
-            value: totalUnits,
-            icon: TrendingUp,
-            color: "#2563eb",
-            bg: "#eff6ff",
-          },
-          {
-            label: "In Transit",
-            value: inTransitUnits,
-            icon: Zap,
-            color: "#d97706",
-            bg: "#fffbeb",
-          },
-          {
-            label: "Below Reorder",
-            value: lowStockCount,
-            icon: AlertTriangle,
-            color: "#dc2626",
-            bg: "#fef2f2",
-          },
-        ].map(({ label, value, icon: Icon, color, bg }) => (
-          <div
-            key={label}
-            className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-gray-400 text-xs">{label}</span>
-              <div
-                className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                style={{ backgroundColor: bg }}
-              >
-                <Icon size={16} style={{ color }} />
-              </div>
-            </div>
+  const cards = [
+    {
+      label: "Total Products",
+      value: totalItems,
+      icon: Package,
+      // brand green
+      iconBg: "bg-primary/10 dark:bg-primary/25",
+      iconColor: "text-primary dark:text-gold-light",
+      valueColor: "text-primary dark:text-gold-light",
+    },
+    {
+      label: "Total Units",
+      value: totalUnits,
+      icon: TrendingUp,
+      // brand green
+      iconBg: "bg-primary/10 dark:bg-primary/25",
+      iconColor: "text-primary dark:text-gold-light",
+      valueColor: "text-primary dark:text-gold-light",
+    },
+    {
+      label: "In Transit",
+      value: inTransitUnits,
+      icon: Zap,
+      // gold (premium "in motion")
+      iconBg: "bg-accent/15 dark:bg-accent/25",
+      iconColor: "text-accent dark:text-gold-light",
+      valueColor: "text-accent dark:text-gold-light",
+    },
+    {
+      label: "Below Reorder",
+      value: lowStockCount,
+      icon: AlertTriangle,
+      // dynamic: red ONLY if there's an actual problem
+      iconBg: hasLowStock
+        ? "bg-red-50 dark:bg-red-950/30"
+        : "bg-primary/10 dark:bg-primary/25",
+      iconColor: hasLowStock
+        ? "text-red-600 dark:text-red-400"
+        : "text-primary dark:text-gold-light",
+      valueColor: hasLowStock
+        ? "text-red-600 dark:text-red-400"
+        : "text-primary dark:text-gold-light",
+    },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {cards.map(({ label, value, icon: Icon, iconBg, iconColor, valueColor }) => (
+        <div
+          key={label}
+          className="rounded-xl p-4 transition-all
+                     bg-white dark:bg-card
+                     border border-gray-100 dark:border-sidebar-border
+                     shadow-sm hover:shadow-md hover:-translate-y-0.5"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-gray-400 dark:text-muted-foreground">
+              {label}
+            </span>
             <div
-              className="font-bold"
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: 700,
-                lineHeight: 1.2,
-                color,
-              }}
+              className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${iconBg}`}
             >
-              {value}
+              <Icon size={16} className={iconColor} />
             </div>
           </div>
-        ))}
-      </div>
-    );
+          <div className={`font-display text-2xl font-bold leading-tight ${valueColor}`}>
+            {value.toLocaleString()}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }

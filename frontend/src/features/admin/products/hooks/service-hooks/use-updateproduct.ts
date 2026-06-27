@@ -15,6 +15,8 @@ export interface UpdateProductInput {
     available?: number;
     stock?: number;
     categoryId?: number;
+    inTransit?: number;
+    blocked?: number;
 }
 
 export const useUpdateProduct = () => {

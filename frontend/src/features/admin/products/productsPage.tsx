@@ -140,17 +140,30 @@ export default function ProductsPage() {
             />
 
             {/* Filter Dropdown */}
-            <FilterDropdown 
-              searchTerm={searchTerm} 
-              setSearchTerm={setSearchTerm} 
-              categories={categories} 
-              selectedCategory={selectedCategory} 
-              setSelectedCategory={setSelectedCategory} 
-              statuses={statuses} 
-              selectedStatus={selectedStatus} 
-              setSelectedStatus={setSelectedStatus} 
-              showFilterDropdown={showFilterDropdown} 
-              setShowFilterDropdown={setShowFilterDropdown} 
+            {/* Filter Dropdown */}
+            <FilterDropdown
+              showFilterDropdown={showFilterDropdown}
+              setShowFilterDropdown={setShowFilterDropdown}
+              sections={[
+                {
+                  label: "Category",
+                  options: categories,
+                  selected: selectedCategory,
+                  onChange: setSelectedCategory,
+                  allLabel: "All Categories",
+                },
+                {
+                  label: "Status",
+                  options: statuses,
+                  selected: selectedStatus,
+                  onChange: setSelectedStatus,
+                  allLabel: "All Status",
+                },
+              ]}
+              onClearAll={() => {
+                setSelectedCategory("all");
+                setSelectedStatus("all");
+              }}
             />
 
             {/* Add Product Button */}
@@ -219,8 +232,12 @@ export default function ProductsPage() {
           <div className="flex items-center justify-end">
             <button
               onClick={handleAddCategoryClick}
-              className="px-4 py-2.5 rounded-lg text-white text-sm font-semibold transition-all hover:opacity-90 shadow-sm"
-              style={{ backgroundColor: "#bf262f" }}
+              className="px-4 py-2.5 rounded-lg
+              bg-primary text-[#F4F4F0] text-sm font-semibold
+                 shadow-sm transition-all
+                 hover:bg-primary/90 hover:shadow-md
+                 focus:outline-none focus:ring-2 focus:ring-primary/30
+                 active:scale-[0.98]"
             >
               + Add Category
             </button>

@@ -1,9 +1,9 @@
 export const STATUS_FLOW: Record<string, string[]> = {
   PENDING_APPROVAL: ["AWAITING_PAYMENT_VERIFICATION", "REJECTED", "CANCELLED"],
   AWAITING_PAYMENT_VERIFICATION: ["ACCEPT", "REJECTED", "CANCELLED"],
-  ACCEPT: ["PACKING", "REJECTED", "CANCELLED"],
-  PACKING: ["IN_TRANSIT", "REJECTED", "CANCELLED"],
-  IN_TRANSIT: ["DELIVERED", "REJECTED", "CANCELLED"],
+  ACCEPT: ["PACKING", /* "REJECT", "CANCEL" */],
+  PACKING: ["IN_TRANSIT", /* "REJECTED", "CANCELLED" */],
+  IN_TRANSIT: ["DELIVERED", /* "REJECTED", "CANCELLED" */],
   DELIVERED: ["CANCELLED"],
   REJECTED: [],
   CANCELLED: [],
@@ -24,8 +24,8 @@ export const STATUS_LABELS: Record<string, string> = {
   READY_FOR_DELIVERY: "Ready for Delivery",
   READY_FOR_BILLING: "Ready for Billing",
   PAID: "Paid",
-  REJECTED: "Rejected",
-  CANCELLED: "Cancelled",
+  REJECT: "Reject",
+  CANCEL: "Cancel",
 };
 
 export const STATUS_COLORS: Record<string, { bg: string; color: string }> = {

@@ -1,6 +1,5 @@
 import React, { ReactNode } from "react";
 import { X } from "lucide-react";
-import { COLORS } from "../constants/colors";
 import styles from "../styles/modal.module.css";
 
 interface ModalProps {
@@ -13,6 +12,7 @@ interface ModalProps {
   icon?: React.ReactNode;
   children: ReactNode;
   maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl";
+  /** Optional override for header background (Tailwind class). Defaults to soft green tint. */
   headerBg?: string;
 }
 
@@ -34,7 +34,7 @@ export function Modal({
   icon,
   children,
   maxWidth = "2xl",
-  headerBg = COLORS.bgLight,
+  headerBg,
 }: ModalProps) {
   if (!isOpen && !isAnimating) return null;
 
@@ -44,51 +44,55 @@ export function Modal({
     <>
       {/* Backdrop */}
       <div
-        className={`fixed top-0 left-0 w-screen h-screen z-40 ${
+        className={`fixed top-0 left-0 w-screen h-screen z-40 bg-black/50 ${
           showBackdrop ? styles.backdrop : styles["backdrop--closing"]
         }`}
-        style={{ background: COLORS.backdrop }}
         onClick={onClose}
         onAnimationEnd={onAnimationEnd}
       />
 
       {/* Modal Container */}
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div
-          className={`relative bg-white rounded-2xl shadow-2xl w-full mx-4 overflow-hidden pointer-events-auto ${
-            maxWidthClasses[maxWidth]
-          } ${showBackdrop ? styles.modal : styles["modal--closing"]}`}
+          className={[
+            "relative w-full mx-4 overflow-hidden rounded-2xl shadow-2xl pointer-events-auto",
+            "bg-white dark:bg-card",
+            "border border-gray-200 dark:border-sidebar-border",
+            maxWidthClasses[maxWidth],
+            showBackdrop ? styles.modal : styles["modal--closing"],
+          ].join(" ")}
           onAnimationEnd={onAnimationEnd}
         >
           {/* Header */}
           <div
-            className="px-6 py-4 border-b flex items-center justify-between"
-            style={{
-              backgroundColor: headerBg,
-              borderColor: COLORS.borderDefault,
-            }}
+            className={[
+              "px-6 py-4 flex items-center justify-between",
+              "border-b border-gray-200 dark:border-sidebar-border",
+              // ✅ soft green tint by default (same vibe as your old soft red)
+              headerBg ?? "bg-primary/5 dark:bg-primary/20",
+            ].join(" ")}
           >
             <div className="flex items-center gap-3">
               {icon && (
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: COLORS.bgLighter }}
+                  className="w-10 h-10 rounded-lg flex items-center justify-center
+                             bg-white dark:bg-card
+                             border border-gray-200 dark:border-sidebar-border
+                             shadow-sm"
                 >
                   {icon}
                 </div>
               )}
               <div>
+                {/* ✅ Playfair Display title in dark green / gold */}
                 <h2
-                  className="text-lg font-bold"
-                  style={{ color: COLORS.textDark }}
+                  className="font-serif text-lg font-semibold leading-tight
+                             text-primary dark:text-gold-light"
                 >
                   {title}
                 </h2>
                 {subtitle && (
-                  <p
-                    className="text-sm"
-                    style={{ color: COLORS.textTertiary }}
-                  >
+                  <p className="font-sans text-sm text-gray-500 dark:text-muted-foreground">
                     {subtitle}
                   </p>
                 )}
@@ -97,10 +101,12 @@ export function Modal({
 
             <button
               onClick={onClose}
-              className="p-1 rounded-lg hover:bg-gray-200 transition-colors"
               aria-label="Close modal"
+              className="p-1 rounded-lg transition-colors
+                         text-gray-500 hover:text-gray-800 hover:bg-gray-200
+                         dark:text-muted-foreground dark:hover:text-gold dark:hover:bg-sidebar-accent"
             >
-              <X size={20} style={{ color: COLORS.textSecondary }} />
+              <X size={20} />
             </button>
           </div>
 

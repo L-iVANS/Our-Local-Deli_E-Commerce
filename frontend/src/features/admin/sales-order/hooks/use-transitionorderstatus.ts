@@ -11,17 +11,25 @@ const transitionOrderStatus = async (
 ): Promise<Order> => {
   const { orderId, ...payload } = input;
 
-  const response = await api.post(
-    `/admin/orders/${orderId}/transition`,
-    {
+  console.log('transition input:', input);
+  console.log('transition payload:', payload);
+
+  try {
+    const response = await api.post(`/admin/orders/${orderId}/transition`, {
       body: JSON.stringify(payload),
       headers: {
         'Content-Type': 'application/json',
       },
-    }
-  );
+    });
 
-  return response.json<Order>();
+    return response.json<Order>();
+  } catch (error: any) {
+    if (error.response) {
+      const text = await error.response.text();
+      console.error('Server 400 response:', text);
+    }
+    throw error;
+  }
 };
 
 export const useTransitionOrderStatus = () => {

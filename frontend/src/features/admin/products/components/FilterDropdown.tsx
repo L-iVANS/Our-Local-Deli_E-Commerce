@@ -1,89 +1,110 @@
 import { Filter } from "lucide-react";
 
+export interface FilterSection {
+  label: string;                              // e.g. "Status", "Category"
+  options: string[];                          // e.g. ["all", "PENDING", "ACCEPT"]
+  selected: string;                           // currently selected value
+  onChange: (value: string) => void;          // setter
+  getLabel?: (value: string) => string;       // optional: format option labels
+  allLabel?: string;                          // optional: label for "all" option
+}
 
-export function FilterDropdown({searchTerm, setSearchTerm, categories, selectedCategory, setSelectedCategory, statuses, selectedStatus, setSelectedStatus, showFilterDropdown, setShowFilterDropdown}:
-     {searchTerm: string, setSearchTerm: (value: string) => void, categories: string[], selectedCategory: string, setSelectedCategory: (value: string) => void, statuses: string[],
-         selectedStatus: string, setSelectedStatus: (value: string) => void, showFilterDropdown: boolean, setShowFilterDropdown: (value: boolean) => void}) {
-    return(
-        <div className="relative">
-          <button
-            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            <Filter size={14} />
-            Filter
-          </button>
+interface FilterDropdownProps {
+  sections: FilterSection[];                  // 1 or more filter sections
+  showFilterDropdown: boolean;
+  setShowFilterDropdown: (value: boolean) => void;
+  onClearAll?: () => void;                    // optional clear handler
+}
 
-          {showFilterDropdown && (
-            <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-10 p-4 space-y-4">
-              {/* Category Filter */}
-              <div>
-                <label className="text-xs font-semibold text-gray-700 mb-2 block">
-                  Category
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {categories.map((cat) => (
+export function FilterDropdown({
+  sections,
+  showFilterDropdown,
+  setShowFilterDropdown,
+  onClearAll,
+}: FilterDropdownProps) {
+  // Chip styling
+  const chipClass = (active: boolean) =>
+    [
+      "px-3 py-2 rounded-lg text-xs font-medium transition-all text-left border",
+      active
+        ? "bg-primary/15 text-primary border-primary dark:bg-primary/20 dark:text-gold-light dark:border-gold"
+        : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 dark:bg-card dark:text-muted-foreground dark:border-sidebar-border dark:hover:bg-sidebar-accent",
+    ].join(" ");
+
+  // Default clear: reset all sections to "all"
+  const handleClear = () => {
+    if (onClearAll) {
+      onClearAll();
+    } else {
+      sections.forEach((section) => section.onChange("all"));
+    }
+  };
+
+  return (
+    <div className="relative">
+      {/* Trigger button */}
+      <button
+        onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-lg
+                   border border-gray-200 dark:border-sidebar-border
+                   bg-white dark:bg-card
+                   text-sm font-medium text-gray-600 dark:text-muted-foreground
+                   transition-colors
+                   hover:bg-gray-50 dark:hover:bg-sidebar-accent
+                   focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+      >
+        <Filter size={14} />
+        Filter
+      </button>
+
+      {/* Dropdown */}
+      {showFilterDropdown && (
+        <div
+          className="absolute right-0 mt-2 w-80 z-10 p-4 space-y-4
+                     rounded-lg shadow-lg
+                     bg-white dark:bg-card
+                     border border-gray-200 dark:border-sidebar-border"
+        >
+          {sections.map((section) => (
+            <div key={section.label}>
+              <label className="text-xs font-semibold mb-2 block text-gray-700 dark:text-gold">
+                {section.label}
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {section.options.map((option) => {
+                  const isAll = option === "all";
+                  const displayLabel = isAll
+                    ? section.allLabel ?? `All ${section.label}`
+                    : section.getLabel
+                    ? section.getLabel(option)
+                    : option;
+
+                  return (
                     <button
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      className="px-3 py-2 rounded-lg text-xs font-medium transition-all text-left"
-                      style={{
-                        backgroundColor:
-                          selectedCategory === cat ? "#fdf2f2" : "#f9fafb",
-                        color:
-                          selectedCategory === cat ? "#bf262f" : "#6b7280",
-                        border:
-                          selectedCategory === cat
-                            ? "1px solid #bf262f"
-                            : "1px solid #e5e7eb",
-                      }}
+                      key={option}
+                      onClick={() => section.onChange(option)}
+                      className={chipClass(section.selected === option)}
                     >
-                      {cat === "all" ? "All Categories" : cat}
+                      {displayLabel}
                     </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
-
-              {/* Status Filter */}
-              <div>
-                <label className="text-xs font-semibold text-gray-700 mb-2 block">
-                  Status
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {statuses.map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => setSelectedStatus(status)}
-                      className="px-3 py-2 rounded-lg text-xs font-medium transition-all text-left"
-                      style={{
-                        backgroundColor:
-                          selectedStatus === status ? "#fdf2f2" : "#f9fafb",
-                        color:
-                          selectedStatus === status ? "#bf262f" : "#6b7280",
-                        border:
-                          selectedStatus === status
-                            ? "1px solid #bf262f"
-                            : "1px solid #e5e7eb",
-                      }}
-                    >
-                      {status === "all" ? "All Status" : status}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Clear Filters */}
-              <button
-                onClick={() => {
-                  setSelectedCategory("all");
-                  setSelectedStatus("all");
-                }}
-                className="w-full px-3 py-2 rounded-lg text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors"
-              >
-                Clear Filters
-              </button>
             </div>
-          )}
+          ))}
+
+          {/* Clear Filters */}
+          <button
+            onClick={handleClear}
+            className="w-full px-3 py-2 rounded-lg text-xs font-medium
+                       text-gray-600 hover:bg-gray-100
+                       dark:text-muted-foreground dark:hover:bg-sidebar-accent
+                       transition-colors"
+          >
+            Clear Filters
+          </button>
         </div>
-    );
+      )}
+    </div>
+  );
 }

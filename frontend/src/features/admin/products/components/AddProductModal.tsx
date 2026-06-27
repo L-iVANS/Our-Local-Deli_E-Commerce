@@ -6,7 +6,6 @@ import { useCreateProduct } from "../hooks/service-hooks/use-createproduct";
 import { useUpdateProduct } from "../hooks/service-hooks/use-updateproduct";
 import { useModal } from "../hooks/useModal";
 import { toast } from "sonner";
-import { COLORS } from "../constants/colors";
 import { Modal } from "./Modal";
 import { FormField } from "./FormField";
 import {
@@ -55,7 +54,6 @@ export function AddProductModal({
   const [error, setError] = useState<Error | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Pre-fill form when editing or reset when creating
   useEffect(() => {
     if (isOpen) {
       if (isEditMode && productToEdit) {
@@ -84,7 +82,6 @@ export function AddProductModal({
     const { name, value } = e.target;
     let finalValue: any = value;
 
-    // Apply field-specific validation and formatting
     switch (name) {
       case "name":
         finalValue = sanitizeProductName(value);
@@ -92,8 +89,7 @@ export function AddProductModal({
       case "sku":
         finalValue = sanitizeSKU(value);
         break;
-      case "category":
-        // Auto-populate SKU with the selected category's prefix
+      case "category": {
         finalValue = value;
         const selectedCategory = categories.find(
           (cat) => cat.categoryName === value
@@ -104,7 +100,6 @@ export function AddProductModal({
             category: finalValue,
             sku: selectedCategory.skuPrefix,
           }));
-          // Clear errors for both fields
           if (errors.category || errors.sku) {
             setErrors((prev) => {
               const newErrors = { ...prev };
@@ -113,24 +108,19 @@ export function AddProductModal({
               return newErrors;
             });
           }
-          return; // Return early to avoid duplicate state update
+          return;
         }
         break;
+      }
       case "price":
       case "reorderPoint":
       case "available":
         finalValue = normalizeNumericInput(value);
         break;
-      default:
-        break;
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: finalValue,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: finalValue }));
 
-    // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -143,37 +133,21 @@ export function AddProductModal({
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validate file type
       if (!file.type.startsWith("image/")) {
-        setErrors((prev) => ({
-          ...prev,
-          image: "Please select an image file",
-        }));
+        setErrors((prev) => ({ ...prev, image: "Please select an image file" }));
         return;
       }
-
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setErrors((prev) => ({
-          ...prev,
-          image: "Image size must be less than 5MB",
-        }));
+        setErrors((prev) => ({ ...prev, image: "Image size must be less than 5MB" }));
         return;
       }
 
-      setFormData((prev) => ({
-        ...prev,
-        image: file,
-      }));
+      setFormData((prev) => ({ ...prev, image: file }));
 
-      // Create preview
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
+      reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
 
-      // Clear error
       if (errors.image) {
         setErrors((prev) => {
           const newErrors = { ...prev };
@@ -184,10 +158,8 @@ export function AddProductModal({
     }
   };
 
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const field = (e.target as HTMLInputElement).name;
-    // Block minus key on numeric fields
     if (
       (field === "price" || field === "reorderPoint" || field === "available") &&
       e.key === "-"
@@ -214,14 +186,13 @@ export function AddProductModal({
       );
       const categoryId = selectedCategory?.categoryId ?? 0;
 
-      // Upload image if provided
       let imageUrl = formData.imageUrl || "";
       if (formData.image) {
         toast.loading("Uploading image...");
         try {
           imageUrl = await uploadProductImage(formData.image);
-          toast.dismiss(); // Dismiss loading toast
-        } catch (uploadError: any) {
+          toast.dismiss();
+        } catch {
           toast.error("Failed to upload image. Please try again.");
           setLoading(false);
           return;
@@ -275,7 +246,7 @@ export function AddProductModal({
     setErrors({});
     setError(null);
     onClose();
-  }
+  };
 
   if (!isOpen && !isAnimating) return null;
 
@@ -296,21 +267,15 @@ export function AddProductModal({
           ? "Update the product details below"
           : "Fill in the product details below"
       }
-      icon={<Package size={20} style={{ color: COLORS.brandPrimary }} />}
-      headerBg={COLORS.bgLight}
+      icon={<Package size={20} className="text-primary" />}
+      headerBg="rgba(10, 58, 43, 0.06)"  // ✅ soft green tint (same idea as the pink)
       maxWidth="2xl"
     >
       <form onSubmit={handleSubmit} className="p-6 space-y-5">
-        {/* Error from mutation */}
+        {/* Mutation Error */}
         {error && (
-          <div
-            className="p-3 rounded-lg border"
-            style={{
-              backgroundColor: "#fee2e2",
-              borderColor: COLORS.error,
-            }}
-          >
-            <p className="text-sm" style={{ color: COLORS.error }}>
+          <div className="p-3 rounded-lg border border-red-300 bg-red-50 dark:border-red-700/40 dark:bg-red-950/30">
+            <p className="text-sm text-red-700 dark:text-red-300">
               {error.message}
             </p>
           </div>
@@ -331,7 +296,7 @@ export function AddProductModal({
           maxLength={100}
         />
 
-        {/* SKU and Category Row */}
+        {/* SKU + Category */}
         <div className="grid grid-cols-2 gap-4">
           <FormField
             label="SKU"
@@ -359,7 +324,7 @@ export function AddProductModal({
           />
         </div>
 
-        {/* Price and Reorder Point Row */}
+        {/* Price + Reorder */}
         <div className="grid grid-cols-2 gap-4">
           <FormField
             label="Price (₱)"
@@ -408,12 +373,11 @@ export function AddProductModal({
           <div className="flex items-center justify-between mb-2">
             <label
               htmlFor="productDescription"
-              className="block text-sm font-semibold"
-              style={{ color: COLORS.textPrimary }}
+              className="block text-sm font-semibold text-gray-800 dark:text-gold"
             >
               Product Description *
             </label>
-            <span className="text-xs" style={{ color: COLORS.textTertiary }}>
+            <span className="text-xs text-gray-400 dark:text-muted-foreground">
               {formData.productDescription.length}/500
             </span>
           </div>
@@ -425,16 +389,18 @@ export function AddProductModal({
             placeholder="e.g., A premium vacuum flask with double-wall insulation..."
             maxLength={500}
             rows={4}
-            className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all resize-none"
-            style={{
-              borderColor: errors.productDescription
-                ? COLORS.error
-                : COLORS.borderDefault,
-              backgroundColor: COLORS.bgNeutral,
-            }}
+            className={[
+              "w-full px-4 py-2.5 rounded-lg border text-sm resize-none transition-all",
+              "bg-gray-50 dark:bg-input-background",
+              "text-foreground placeholder:text-gray-400 dark:placeholder:text-muted-foreground/70",
+              "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary",
+              errors.productDescription
+                ? "border-red-400 dark:border-red-500/60"
+                : "border-gray-200 dark:border-sidebar-border",
+            ].join(" ")}
           />
           {errors.productDescription && (
-            <p className="text-xs mt-1" style={{ color: COLORS.error }}>
+            <p className="text-xs mt-1 text-red-500">
               {errors.productDescription}
             </p>
           )}
@@ -444,19 +410,20 @@ export function AddProductModal({
         <div>
           <label
             htmlFor="image"
-            className="block text-sm font-semibold mb-2"
-            style={{ color: COLORS.textPrimary }}
+            className="block text-sm font-semibold mb-2 text-gray-800 dark:text-gold"
           >
             Product Image
           </label>
           <div className="flex gap-4">
-            {/* Image Preview */}
+            {/* Preview */}
             <div
-              className="w-32 h-32 rounded-lg border-2 border-dashed flex items-center justify-center"
-              style={{
-                borderColor: errors.image ? COLORS.error : COLORS.borderDefault,
-                backgroundColor: COLORS.bgNeutral,
-              }}
+              className={[
+                "w-32 h-32 rounded-lg border-2 border-dashed flex items-center justify-center overflow-hidden",
+                "bg-gray-50 dark:bg-input-background",
+                errors.image
+                  ? "border-red-400"
+                  : "border-gray-200 dark:border-sidebar-border",
+              ].join(" ")}
             >
               {imagePreview ? (
                 <img
@@ -465,16 +432,13 @@ export function AddProductModal({
                   className="w-full h-full object-cover rounded-lg"
                 />
               ) : (
-                <div
-                  className="text-center"
-                  style={{ color: COLORS.textTertiary }}
-                >
-                  <p className="text-xs">Upload image</p>
-                </div>
+                <p className="text-xs text-gray-400 dark:text-muted-foreground">
+                  Upload image
+                </p>
               )}
             </div>
 
-            {/* Upload Input */}
+            {/* Upload */}
             <div className="flex-1">
               <input
                 id="image"
@@ -486,32 +450,29 @@ export function AddProductModal({
               />
               <label
                 htmlFor="image"
-                className="block w-full px-4 py-2.5 rounded-lg border-2 border-dashed text-sm font-semibold text-center cursor-pointer transition-colors hover:bg-opacity-50"
-                style={{
-                  borderColor: errors.image ? COLORS.error : COLORS.borderDefault,
-                  color: COLORS.textPrimary,
-                  backgroundColor: COLORS.bgNeutral,
-                }}
+                className={[
+                  "block w-full px-4 py-2.5 rounded-lg border-2 border-dashed text-sm font-semibold text-center cursor-pointer transition-colors",
+                  "bg-gray-50 dark:bg-input-background text-gray-800 dark:text-gold",
+                  "hover:border-primary hover:bg-primary/5 dark:hover:bg-primary/10",
+                  errors.image
+                    ? "border-red-400"
+                    : "border-gray-200 dark:border-sidebar-border",
+                ].join(" ")}
               >
                 Click to upload image
               </label>
-              <p className="text-xs mt-2" style={{ color: COLORS.textTertiary }}>
+              <p className="text-xs mt-2 text-gray-400 dark:text-muted-foreground">
                 JPG, PNG, or WebP (Max 5MB)
               </p>
               {errors.image && (
-                <p className="text-xs mt-2" style={{ color: COLORS.error }}>
-                  {errors.image}
-                </p>
+                <p className="text-xs mt-2 text-red-500">{errors.image}</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Divider */}
-        <div
-          className="border-t pt-6"
-          style={{ borderColor: COLORS.borderDefault }}
-        />
+        <div className="border-t border-gray-200 dark:border-sidebar-border pt-6" />
 
         {/* Action Buttons */}
         <div className="flex gap-3">
@@ -519,24 +480,28 @@ export function AddProductModal({
             type="button"
             onClick={handleClose}
             disabled={loading}
-            className="flex-1 py-3 rounded-xl font-semibold border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{
-              borderColor: COLORS.borderDefault,
-              color: COLORS.textPrimary,
-              backgroundColor: loading ? COLORS.bgNeutral : "transparent",
-            }}
+            className="flex-1 py-3 rounded-xl font-semibold border transition-colors
+                       border-gray-200 dark:border-sidebar-border
+                       text-gray-800 dark:text-gold
+                       bg-transparent hover:bg-gray-50 dark:hover:bg-sidebar-accent
+                       disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
+
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: COLORS.brandPrimary }}
+            className="flex-1 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-sm transition-all
+                       bg-primary text-[#F4F4F0]
+                       hover:bg-primary/90 hover:shadow-md
+                       focus:outline-none focus:ring-2 focus:ring-primary/30
+                       active:scale-[0.98]
+                       disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-[#F4F4F0] border-t-transparent rounded-full animate-spin" />
                 {isEditMode ? "Updating..." : "Creating..."}
               </>
             ) : (

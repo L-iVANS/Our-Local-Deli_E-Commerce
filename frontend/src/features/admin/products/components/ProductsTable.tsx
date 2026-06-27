@@ -254,59 +254,67 @@ export function ProductsTable({
       </div>
 
       {/* Pagination Footer */}
-      <div
-        className="flex items-center justify-between px-5 py-4"
-        style={{ borderTop: "1px solid #f1f5f9", background: "#fafafa" }}
-      >
+      <div className="flex items-center justify-between px-5 py-4
+                      border-t border-gray-100 dark:border-sidebar-border
+                      bg-gray-50 dark:bg-card">
         <div className="flex items-center gap-2">
+          {/* Previous */}
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors"
-            style={{
-              borderColor: currentPage === 1 ? "#e5e7eb" : "#d1d5db",
-              color: currentPage === 1 ? "#d1d5db" : "#6b7280",
-              backgroundColor: currentPage === 1 ? "#f3f4f6" : "white",
-              cursor: currentPage === 1 ? "not-allowed" : "pointer",
-            }}
+            className="px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors
+                      border-gray-200 dark:border-sidebar-border
+                      bg-white dark:bg-card
+                      text-gray-600 dark:text-muted-foreground
+                      hover:border-primary hover:text-primary
+                      dark:hover:border-gold dark:hover:text-gold
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                      disabled:hover:border-gray-200 disabled:hover:text-gray-400
+                      dark:disabled:hover:border-sidebar-border dark:disabled:hover:text-muted-foreground"
           >
             ← Previous
           </button>
 
+          {/* Page numbers */}
           <div className="flex items-center gap-1">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className="w-8 h-8 rounded-lg text-xs font-semibold transition-all"
-                style={{
-                  backgroundColor: currentPage === page ? "#bf262f" : "#f3f4f6",
-                  color: currentPage === page ? "white" : "#6b7280",
-                  border: currentPage === page ? "1px solid #bf262f" : "1px solid #e5e7eb",
-                  cursor: "pointer",
-                }}
-              >
-                {page}
-              </button>
-            ))}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+              const active = currentPage === page;
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={[
+                    "w-8 h-8 rounded-lg text-xs font-semibold transition-all border",
+                    active
+                      ? "bg-primary text-[#F4F4F0] border-primary shadow-sm"
+                      : "bg-white dark:bg-card text-gray-600 dark:text-muted-foreground border-gray-200 dark:border-sidebar-border hover:border-primary hover:text-primary dark:hover:border-gold dark:hover:text-gold",
+                  ].join(" ")}
+                >
+                  {page}
+                </button>
+              );
+            })}
           </div>
 
+          {/* Next */}
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors"
-            style={{
-              borderColor: currentPage === totalPages ? "#e5e7eb" : "#d1d5db",
-              color: currentPage === totalPages ? "#d1d5db" : "#6b7280",
-              backgroundColor: currentPage === totalPages ? "#f3f4f6" : "white",
-              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-            }}
+            className="px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors
+                      border-gray-200 dark:border-sidebar-border
+                      bg-white dark:bg-card
+                      text-gray-600 dark:text-muted-foreground
+                      hover:border-primary hover:text-primary
+                      dark:hover:border-gold dark:hover:text-gold
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                      disabled:hover:border-gray-200 disabled:hover:text-gray-400
+                      dark:disabled:hover:border-sidebar-border dark:disabled:hover:text-muted-foreground"
           >
             Next →
           </button>
         </div>
 
-        <p style={{ fontSize: "12px", color: "#6b7280" }}>
+        <p className="text-xs text-gray-500 dark:text-muted-foreground">
           Showing {startIndex + 1}-{Math.min(endIndex, products.length)} of {products.length} products
         </p>
       </div>

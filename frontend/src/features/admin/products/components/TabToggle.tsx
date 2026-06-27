@@ -6,28 +6,35 @@ interface TabToggleProps {
 }
 
 export function TabToggle({ activeTab, onTabChange }: TabToggleProps) {
+  const tabs = [
+    { id: 'products' as const,   label: 'Products'   },
+    { id: 'categories' as const, label: 'Categories' },
+  ];
+
   return (
-    <div
-      className="flex border border-gray-200 rounded-lg overflow-hidden"
-      style={{ width: 'fit-content' }}
-    >
-      {[
-        { id: 'products' as const, label: 'Products' },
-        { id: 'categories' as const, label: 'Categories' },
-      ].map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          className="px-4 py-2.5 text-sm font-medium transition-all"
-          style={{
-            backgroundColor: activeTab === tab.id ? '#bf262f' : 'white',
-            color: activeTab === tab.id ? 'white' : '#64748b',
-            borderRight: tab.id === 'products' ? '1px solid #e2e8f0' : 'none',
-          }}
-        >
-          {tab.label}
-        </button>
-      ))}
+    <div className="inline-flex overflow-hidden rounded-lg border border-border bg-card">
+      {tabs.map((tab, idx) => {
+        const active = activeTab === tab.id;
+        const isLast = idx === tabs.length - 1;
+
+        return (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            className={[
+              "px-4 py-2.5 text-sm font-medium transition-all",
+              !isLast && "border-r border-border",
+              active
+                ? "bg-primary text-[#F4F4F0]"
+                : "bg-card text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+          >
+            {tab.label}
+          </button>
+        );
+      })}
     </div>
   );
 }

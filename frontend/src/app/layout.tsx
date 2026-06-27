@@ -33,6 +33,7 @@ export default async function RootLayout({
           theme="light"
           position="top-right"
           richColors
+          offset={20} 
         />
         <QueryProvider>
           <AuthProvider initialSession={session}>

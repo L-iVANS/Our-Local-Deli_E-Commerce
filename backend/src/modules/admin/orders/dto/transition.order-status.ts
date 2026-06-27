@@ -1,6 +1,5 @@
 import {
   IsEnum,
-  IsInt,
   IsNotEmpty,
   IsOptional,
   MaxLength,
@@ -8,13 +7,11 @@ import {
 import { OrderStatus } from '../entity/order-status.enum';
 
 export class TransitionOrderStatusDto {
-  @IsNotEmpty()
-  @IsInt()
-  orderId: number;
+  orderId!: number;
 
   @IsNotEmpty()
   @IsEnum(OrderStatus)
-  nextStatus: OrderStatus;
+  nextStatus!: OrderStatus;
 
   @IsOptional()
   @MaxLength(200)
