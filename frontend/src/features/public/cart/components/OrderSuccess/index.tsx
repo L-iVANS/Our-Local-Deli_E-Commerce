@@ -63,7 +63,7 @@ export function OrderSuccess({ orderNumber, orderId = "", grandTotal = 0 }: Orde
       setIsUploadModalOpen(false);
       
       setTimeout(() => {
-        router.push("/b2b/my-orders");
+        router.push("/consumer/my-orders");
       }, 1500);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : "Failed to upload payment proof";

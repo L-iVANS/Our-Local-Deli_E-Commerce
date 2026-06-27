@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { usePlaceOrder } from "../services";
 import { CartItem, DeliveryDetails } from "../types";
 import { getDiscountRate } from "../constants/cartConstants";
+import { cartService } from "../services/cart-service";
 
 export type CartAuthCompany = {
   userId?: number;
@@ -95,6 +96,7 @@ export const useOrderPlacement = (
           setErrors({ notes: "No response from server. Please try again." });
           return;
         }
+        await cartService.clearCart();
 
         removeItems(selectedItems.map((item) => item.product.id));
 
@@ -106,7 +108,7 @@ export const useOrderPlacement = (
           });
           setShowModal(false);
           return;
-        } 
+        }
 
         router.push(
           `/consumer/order-success?orderNumber=${result.orderNumber}&orderId=${result.orderId}&grandTotal=${grandTotal}`,

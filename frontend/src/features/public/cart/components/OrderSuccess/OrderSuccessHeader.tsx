@@ -19,7 +19,7 @@ export function OrderSuccessHeader() {
         Order Placed!
       </h1>
       <p className="text-gray-400 text-sm leading-relaxed">
-        Your order has been received and is being processed. You'll receive a confirmation email shortly.dasdwds
+        Your order has been received and is being processed. You'll receive a confirmation email shortly.
       </p>
     </div>
   );

@@ -9,9 +9,10 @@ import type { Order } from "../types/order";
  * Map backend order response to frontend Order interface
  */
 function mapBackendOrderToOrder(backendOrder: any): Order {
-  const derivedStatus = backendOrder.paymentProofStatus === "rejected"
-    ? "REJECTED"
-    : mapOrderStatus(backendOrder.status);
+  const derivedStatus =
+    backendOrder.paymentProofStatus === "rejected"
+      ? "REJECTED"
+      : mapOrderStatus(backendOrder.status);
 
   return {
     id: backendOrder.orderId?.toString() || backendOrder.orderNumber || "",
@@ -48,35 +49,47 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
   // Transform each group into a single Order object
   const mappedOrders: Order[] = [];
   for (const [orderNumber, orders] of groupedByOrderNumber) {
-    const sortedOrders = [...orders].sort((a, b) => (a.orderId || 0) - (b.orderId || 0));
+    const sortedOrders = [...orders].sort(
+      (a, b) => (a.orderId || 0) - (b.orderId || 0),
+    );
     const primaryOrder =
-      sortedOrders.find((o) => o.deliveryFee !== undefined || o.grandTotal !== undefined) || sortedOrders[0];
+      sortedOrders.find(
+        (o) => o.deliveryFee !== undefined || o.grandTotal !== undefined,
+      ) || sortedOrders[0];
     const latestProofOrder =
       [...sortedOrders]
         .filter((o) => Boolean(o.paymentProofImage))
         .sort(
           (a, b) =>
-            new Date(b.paymentProofUploadedAt || b.updatedAt || b.createdAt || 0).getTime() -
-            new Date(a.paymentProofUploadedAt || a.updatedAt || a.createdAt || 0).getTime()
+            new Date(
+              b.paymentProofUploadedAt || b.updatedAt || b.createdAt || 0,
+            ).getTime() -
+            new Date(
+              a.paymentProofUploadedAt || a.updatedAt || a.createdAt || 0,
+            ).getTime(),
         )[0] || null;
-    
+
     // Calculate subtotal (sum of all items)
     const subtotal = orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
-    
+
     // Determine delivery fee (1500 threshold)
-    const deliveryFee = primaryOrder.deliveryFee !== undefined && primaryOrder.deliveryFee !== null 
-      ? primaryOrder.deliveryFee 
-      : (subtotal >= 1500 ? 0 : 350);
-    
+    const deliveryFee =
+      primaryOrder.deliveryFee !== undefined &&
+      primaryOrder.deliveryFee !== null
+        ? primaryOrder.deliveryFee
+        : subtotal >= 1500
+          ? 0
+          : 350;
+
     // Use grandTotal from first item if available, otherwise calculate from subtotal + delivery fee
-    const total = primaryOrder.grandTotal || (subtotal + deliveryFee);
-    
+    const total = primaryOrder.grandTotal || subtotal + deliveryFee;
+
     const mappedOrder = {
       id: primaryOrder.orderId?.toString() || orderNumber,
       sapSo: orderNumber,
       date: primaryOrder.createdAt || new Date().toLocaleDateString(),
       customer: "",
-      items: orders.map(o => ({
+      items: orders.map((o) => ({
         sku: o.productId?.toString() || "",
         name: "", // Backend doesn't return product name
         qty: o.quantity || 1,
@@ -97,11 +110,20 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
       paymentProofImage: latestProofOrder?.paymentProofImage
         ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${latestProofOrder.paymentProofImage}`
         : undefined,
-      paymentProofStatus: latestProofOrder?.paymentProofStatus || primaryOrder.paymentProofStatus || "pending",
-      paymentProofRejectionReason: latestProofOrder?.paymentProofRejectionReason || primaryOrder.paymentProofRejectionReason || "",
-      paymentProofAttempts: latestProofOrder?.paymentProofAttempts || primaryOrder.paymentProofAttempts || 0,
+      paymentProofStatus:
+        latestProofOrder?.paymentProofStatus ||
+        primaryOrder.paymentProofStatus ||
+        "pending",
+      paymentProofRejectionReason:
+        latestProofOrder?.paymentProofRejectionReason ||
+        primaryOrder.paymentProofRejectionReason ||
+        "",
+      paymentProofAttempts:
+        latestProofOrder?.paymentProofAttempts ||
+        primaryOrder.paymentProofAttempts ||
+        0,
     } as any;
-    
+
     mappedOrders.push(mappedOrder);
   }
 
@@ -111,20 +133,34 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
 /**
  * Map backend status to frontend OrderStatus
  */
-function mapOrderStatus(status: string): "PENDING_APPROVAL" | "ACCEPT" | "REJECTED" | "CANCELLED" | "ORDERED_FROM_SUPPLIER" | "READY_FOR_BILLING" | "AWAITING_PAYMENT_VERIFICATION" | "PACKING" | "READY_FOR_DELIVERY" | "IN_TRANSIT" | "PAID" | "DELIVERED" {
+function mapOrderStatus(
+  status: string,
+):
+  | "PENDING_APPROVAL"
+  | "ACCEPT"
+  | "REJECTED"
+  | "CANCELLED"
+  | "ORDERED_FROM_SUPPLIER"
+  | "READY_FOR_BILLING"
+  | "AWAITING_PAYMENT_VERIFICATION"
+  | "PACKING"
+  | "READY_FOR_DELIVERY"
+  | "IN_TRANSIT"
+  | "PAID"
+  | "DELIVERED" {
   const statusMap: Record<string, any> = {
-    "PENDING_APPROVAL": "PENDING_APPROVAL",
-    "ACCEPT": "ACCEPT", // Backward compatibility
-    "REJECTED": "REJECTED",
-    "CANCELLED": "CANCELLED",
-    "ORDERED_FROM_SUPPLIER": "ORDERED_FROM_SUPPLIER",
-    "READY_FOR_BILLING": "READY_FOR_BILLING",
-    "AWAITING_PAYMENT_VERIFICATION": "AWAITING_PAYMENT_VERIFICATION",
-    "PACKING": "PACKING",
-    "READY_FOR_DELIVERY": "READY_FOR_DELIVERY",
-    "IN_TRANSIT": "IN_TRANSIT",
-    "PAID": "PAID",
-    "DELIVERED": "DELIVERED",
+    PENDING_APPROVAL: "PENDING_APPROVAL",
+    ACCEPT: "ACCEPT", // Backward compatibility
+    REJECTED: "REJECTED",
+    CANCELLED: "CANCELLED",
+    ORDERED_FROM_SUPPLIER: "ORDERED_FROM_SUPPLIER",
+    READY_FOR_BILLING: "READY_FOR_BILLING",
+    AWAITING_PAYMENT_VERIFICATION: "AWAITING_PAYMENT_VERIFICATION",
+    PACKING: "PACKING",
+    READY_FOR_DELIVERY: "READY_FOR_DELIVERY",
+    IN_TRANSIT: "IN_TRANSIT",
+    PAID: "PAID",
+    DELIVERED: "DELIVERED",
   };
   return statusMap[status] || status;
 }
@@ -151,12 +187,11 @@ export function useFetchOrders(customerId?: number, isAdmin = false) {
         if (isAdmin) {
           // Admin view - fetch all orders
           fetchedOrders = await fetchAllOrders();
+          // ✅ Correct
         } else if (customerId) {
-          // Fetch orders for specific user
           fetchedOrders = await fetchCustomerOrders(customerId);
-        } else if (user?.id) {
-          // Fetch orders for logged-in user
-          fetchedOrders = await fetchCustomerOrders(user.id);
+        } else if (user?.userId) {
+          fetchedOrders = await fetchCustomerOrders(user.userId);
         } else {
           setOrders([]);
           return;
@@ -174,7 +209,7 @@ export function useFetchOrders(customerId?: number, isAdmin = false) {
     };
 
     fetchOrders();
-  }, [customerId, user?.id, isAdmin]);
+  }, [customerId, user?.userId, isAdmin]);
 
   const refetchOrders = async () => {
     try {
@@ -185,8 +220,8 @@ export function useFetchOrders(customerId?: number, isAdmin = false) {
         fetchedOrders = await fetchAllOrders();
       } else if (customerId) {
         fetchedOrders = await fetchCustomerOrders(customerId);
-      } else if (user?.id) {
-        fetchedOrders = await fetchCustomerOrders(user.id);
+      } else if (user?.userId) {
+        fetchedOrders = await fetchCustomerOrders(user.userId);
       }
 
       // Map and group backend orders by orderNumber

@@ -7,7 +7,7 @@ export function OrderSuccessActions() {
   return (
     <div className="flex gap-3">
       <Link
-        href="/b2b/home"
+        href="/"
         className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
       >
         Home
