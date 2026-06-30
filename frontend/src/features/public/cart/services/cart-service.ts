@@ -68,8 +68,25 @@ export const cartService = {
     };
   },
 
+  // POST /cart
+  addToCart: async (payload: {
+    productId: number;
+    quantity: number;
+    selectedColor?: string;
+    selectedSize?: string;
+  }) => {
+    return await api
+      .post("cart", {
+        json: payload,
+      })
+      .json();
+  },
+
   // PATCH /cart/items/:id
-  updateQty: async (cartItemId: number, quantity: number): Promise<CartItem> => {
+  updateQty: async (
+    cartItemId: number,
+    quantity: number,
+  ): Promise<CartItem> => {
     const updated = await api
       .patch(`cart/items/${cartItemId}`, { json: { quantity } })
       .json<BackendCartItem>();

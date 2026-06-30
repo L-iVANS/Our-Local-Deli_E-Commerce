@@ -30,6 +30,30 @@ export const categoriesData: CategoryData[] = [
     iconName: "Soup",
   },
   {
+    id: "ready-to-cook",
+    name: "READY TO COOK",
+    image: "https://images.unsplash.com/photo-1774101074569-b669d4fc207f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    iconName: "Soup",
+  },
+  {
+    id: "ready-to-cook",
+    name: "READY TO COOK",
+    image: "https://images.unsplash.com/photo-1774101074569-b669d4fc207f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    iconName: "Soup",
+  },
+  {
+    id: "ready-to-cook",
+    name: "READY TO COOK",
+    image: "https://images.unsplash.com/photo-1774101074569-b669d4fc207f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    iconName: "Soup",
+  },
+  {
+    id: "ready-to-cook",
+    name: "READY TO COOK",
+    image: "https://images.unsplash.com/photo-1774101074569-b669d4fc207f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    iconName: "Soup",
+  },
+  {
     id: "snacks",
     name: "SNACKS",
     image: "https://images.unsplash.com/photo-1665762520658-4b725e05c5f4?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",

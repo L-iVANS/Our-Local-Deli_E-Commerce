@@ -1,99 +1,233 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { Wine, ChefHat, Soup, Thermometer, ChevronLeft, ChevronRight } from "lucide-react";
-
+import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useHorizontalScroller } from "./hooks/useHorizontalScroller";
 import { CategoryData } from "@/src/data/categoriesData";
 
-// Add a helper mapping for icons
-const IconMap: Record<string, React.ReactNode> = {
-  "Wine": <Wine size={20} />,
-  "ChefHat": <ChefHat size={20} />,
-  "Soup": <Soup size={20} />,
-  "Thermometer": <Thermometer size={20} />
-};
+/**
+ * CategoryStrip
+ * ------------------------------------------------------------------
+ * LO-FI / PLACEHOLDER PASS
+ * ------------------------------------------------------------------
+ * This is intentionally a structural/skeleton build, not the final
+ * polished version. Purpose: lock down layout + behavior so design
+ * + data wiring can proceed in parallel without blocking each other.
+ *
+ * Decisions confirmed with stakeholder before this build:
+ * 1. Single row, horizontal scroll (native scroll-snap, no JS
+ *    carousel lib) — kicks in past 5 items on desktop, ~3 on mobile.
+ * 2. No floating card wrapper — flat background, normal doc flow.
+ * 3. Circular avatars, label BELOW the circle (not overlaid).
+ * 4. No icon badge rendered (iconName stays in the data type for
+ *    forward-compat / CMS reasons, just unused in this UI for now).
+ * 5. Video support (category.videoUrl) intentionally dropped from
+ *    rendering. Field stays optional in the type — not our call to
+ *    delete from the data contract.
+ * 6. Heading ("Shop By Category" + flourishes) now lives INSIDE
+ *    this component (previously lived elsewhere / didn't exist here).
+ * 7. Prev/Next chevrons are now functional (scrollBy), not decorative.
+ * 8. Mobile (<md:) has NO chevrons — touch + chevron buttons fight
+ *    each other (thumb taps button instead of swiping, button can
+ *    overlap content on narrow screens). Instead, mobile shows a
+ *    thicker rounded scroll-progress bar under the row, driven by a
+ *    scroll event listener (scrollLeft / scrollWidth / clientWidth).
+ *    This swaps to chevrons at exactly the `md:` breakpoint, matching
+ *    where chevrons already appear.
+ * 9. Desktop chevrons are disabled (real `disabled` attribute, not
+ *    just visually faded) when at the start/end of the row — standard
+ *    pagination-button UX. Edge state is derived from the same scroll
+ *    measurement that drives the mobile progress bar, so there's one
+ *    source of truth, not two separate calculations to keep in sync.
+ * ------------------------------------------------------------------
+ */
 
 const CategoryStrip = ({ categories }: { categories: CategoryData[] }) => {
+  const {
+    scrollRef,
+    canScrollPrev,
+    canScrollNext,
+    scrollProgress,
+    scrollPrev,
+    scrollNext,
+  } = useHorizontalScroller();
+  // Tracks how far through the row the user has scrolled, as a
+  // percentage (0–100). Drives the mobile progress bar's thumb
+  // width/position. Desktop ignores this entirely (uses chevrons).
+
+  // Edge state for desktop chevrons. Reused from the same scroll
+  // measurement as the mobile progress bar — no separate calc needed.
+  // A small epsilon avoids float-rounding flakiness keeping a button
+  // enabled/disabled by a sub-pixel margin.
+
+  // If content doesn't overflow, thumb fills the whole track,
+  // there's nothing to scroll, and both chevrons stay disabled.
+
+  // Scroll by roughly one "page" of visible items.
+
   return (
-    <section className="relative z-[80] -mt-24 md:-mt-32 lg:-mt-60 mb-0 pointer-events-none overflow-hidden">
-      <div className="w-full max-w-full px-0 md:container md:mx-auto md:px-6 pointer-events-auto">
-        {/* Main Floating Container */}
-        <div className="relative bg-[#F9F3EE] rounded-none md:rounded-[3.5rem] p-4 md:p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-y md:border border-white/50">
+    <section className="relative w-full bg-[#F9F3EE] py-10 md:py-16">
+      <div className="w-full max-w-full px-4 md:container md:mx-auto md:px-6">
+        {/* ---------------------------------------------------------
+            Heading
+            NOTE: flourish icons below are placeholder text glyphs
+            ("⚜") standing in for the actual decorative SVG/icon
+            asset used in the final design. Swap once asset is
+            provided — do not ship this glyph to production.
+        --------------------------------------------------------- */}
+        <div className="flex items-center justify-center gap-3 md:gap-4 mb-8 md:mb-10">
+          <span
+            className="text-primary/60 text-lg md:text-xl select-none"
+            aria-hidden="true"
+          >
+            ⚜
+          </span>
+          <h2 className="font-serif text-xl md:text-3xl tracking-wide text-secondary uppercase">
+            Shop By Category
+          </h2>
+          <span
+            className="text-primary/60 text-lg md:text-xl select-none scale-x-[-1]"
+            aria-hidden="true"
+          >
+            ⚜
+          </span>
+        </div>
 
-          {/* Navigation Controls (Left/Right Buttons) - Hidden on Mobile */}
-          <div className="absolute inset-y-0 -left-4 md:-left-8 hidden md:flex items-center z-10">
-            <button className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white shadow-xl border border-neutral-100 flex items-center justify-center text-secondary hover:bg-primary hover:text-white transition-all active:scale-95">
-              <ChevronLeft size={24} />
-            </button>
-          </div>
-          <div className="absolute inset-y-0 -right-4 md:-right-8 hidden md:flex items-center z-10">
-            <button className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white shadow-xl border border-neutral-100 flex items-center justify-center text-secondary hover:bg-primary hover:text-white transition-all active:scale-95">
-              <ChevronRight size={24} />
-            </button>
-          </div>
+        {/* ---------------------------------------------------------
+            Row wrapper: relative, so chevrons can be absolutely
+            positioned over it without affecting scroll content.
+        --------------------------------------------------------- */}
+        <div className="relative">
+          {/* Prev button — hidden on mobile per native swipe UX,
+              shown on desktop where pointer/trackpad is primary input.
+              Disabled (not just visually faded, but a real `disabled`
+              attribute) when already at the start of the row — this
+              gets correct screen-reader announcement and removes it
+              from the tab order's "actionable" state for free, rather
+              than us having to fake that with aria-disabled + onClick
+              guards. */}
+          <button
+            type="button"
+            onClick={scrollPrev}
+            disabled={!canScrollPrev}
+            aria-label="Scroll categories left"
+            className="hidden md:flex absolute -left-5 top-[38%] -translate-y-1/2 z-10
+                       w-11 h-11 rounded-full bg-white shadow-md border border-neutral-200
+                       items-center justify-center text-secondary
+                       hover:bg-primary hover:text-white transition-colors active:scale-95
+                       disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100
+                       disabled:hover:bg-white disabled:hover:text-secondary"
+          >
+            <ChevronLeft size={20} />
+          </button>
 
-          {/* Grid Content: 2 columns on mobile, 4 on desktop */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
-            {categories.map((category, i) => (
-              <motion.a
+          <button
+            type="button"
+            onClick={scrollNext}
+            disabled={!canScrollNext}
+            aria-label="Scroll categories right"
+            className="hidden md:flex absolute -right-5 top-[38%] -translate-y-1/2 z-10
+                       w-11 h-11 rounded-full bg-white shadow-md border border-neutral-200
+                       items-center justify-center text-secondary
+                       hover:bg-primary hover:text-white transition-colors active:scale-95
+                       disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100
+                       disabled:hover:bg-white disabled:hover:text-secondary"
+          >
+            <ChevronRight size={20} />
+          </button>
+
+          {/* ---------------------------------------------------------
+              Scrollable row.
+              - flex + overflow-x-auto + scroll-snap for native,
+                accessible horizontal scrolling (touch + trackpad work
+                out of the box, no JS carousel library needed).
+              - scrollbar hidden via inline style + className guard
+                (Tailwind has no built-in scrollbar-hide utility
+                without a plugin, so this is done manually below).
+          --------------------------------------------------------- */}
+          <div
+            ref={scrollRef}
+            className="flex gap-4 md:gap-8 overflow-x-auto scroll-smooth snap-x snap-mandatory
+                       [-ms-overflow-style:none] [scrollbar-width:none]
+                       [&::-webkit-scrollbar]:hidden
+                       pb-2"
+          >
+            {categories.map((category) => (
+              <a
                 key={category.id}
                 href={`#${category.id}`}
-                whileHover={{ y: -8 }}
-                whileTap={{ scale: 0.96 }}
-                className="group relative aspect-[3/4] rounded-xl md:rounded-[2.5rem] overflow-hidden shadow-md"
+                className="group flex flex-col items-center gap-3 shrink-0 snap-start
+                           w-[28vw] max-w-[120px] md:w-[150px] md:max-w-none"
               >
-                {/* Background Media */}
-                {category.videoUrl ? (
-                  <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  >
-                    <source src={category.videoUrl.replace('.mp4', '.webm')} type="video/webm" />
-                    <source src={category.videoUrl} type="video/mp4" />
-                  </video>
-
-                ) : (
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                )}
-
-
-                {/* Overlay Gradient */}
-                <div className="absolute inset-0 bg-transparent group-hover:bg-black/10 transition-colors" />
-
-                {/* Vertical Pill Label - Ultra Compact for Mobile Visibility */}
-                <div className="absolute bottom-1.5 md:bottom-4 left-1 md:left-4 right-1 md:right-4 flex items-center justify-center pointer-events-none">
-                  <div className="flex items-center gap-0.5 md:gap-1.5 bg-white/20 backdrop-blur-md px-0.5 md:px-4 py-1 md:py-2 rounded-full border border-white/30 transform transition-transform group-hover:scale-105 w-full justify-center overflow-hidden">
-                    <div className="w-5 md:w-6 lg:w-8 h-5 md:h-6 lg:h-8 rounded-full bg-primary flex items-center justify-center text-white shrink-0">
-                      {/* Scale icon based on container */}
-                      <div className="scale-[0.7] md:scale-40 lg:scale-100 flex items-center justify-center">
-                        {IconMap[category.iconName] || <ChefHat size={20} />}
-                      </div>
-                    </div>
-                    <span className="text-white font-bold text-[8px] xs:text-[10px] md:text-[10px] tracking-tighter md:tracking-widest uppercase whitespace-nowrap leading-none shrink-0">
-                      {category.name}
-                    </span>
-                  </div>
+                {/* ---------------------------------------------
+                    PLACEHOLDER NOTE:
+                    Circle currently renders the real <img> from
+                    categoriesData since image URLs already exist
+                    in the data file. If/when a true "no image yet"
+                    placeholder is needed (e.g. new category added
+                    without an image), fall back to the gray
+                    skeleton block shown commented below.
+                --------------------------------------------------- */}
+                <div
+                  className="relative aspect-square w-full rounded-full overflow-hidden
+                             border-2 border-primary/40 shadow-sm bg-neutral-200"
+                >
+                  {category.image ? (
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="absolute inset-0 w-full h-full object-cover
+                                 transition-transform duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    // Fallback skeleton block — used only when no image exists yet.
+                    <div className="absolute inset-0 animate-pulse bg-neutral-300" />
+                  )}
                 </div>
 
-                {/* Glow/Reflection */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-              </motion.a>
+                <span
+                  className="font-serif text-[11px] md:text-sm text-center leading-tight
+                             tracking-wide text-secondary uppercase"
+                >
+                  {category.name}
+                </span>
+              </a>
             ))}
           </div>
 
-        </div>
+          {/* ---------------------------------------------------------
+              Mobile-only scroll progress bar.
+              Visible below `md:` only — swaps with chevrons exactly
+              at the same breakpoint chevrons use, so there's never
+              a moment with both or neither visible.
 
+              Track height bumped to h-2.5 (10px) — at h-1 (4px) the
+              rounded-full corners were too subtle to read as "rounded"
+              rather than just a flat line. 10px is enough for the
+              pill shape to be visually obvious at typical mobile DPI.
+
+              Implementation note: this is a continuous bar (moving
+              "thumb" over a track), not discrete dots. Dots imply
+              fixed pages, which doesn't map cleanly to free-scroll
+              + scroll-snap with a variable item count. A continuous
+              bar accurately reflects partial-scroll positions.
+          --------------------------------------------------------- */}
+          <div
+            className="md:hidden mt-4 h-2.5 w-full rounded-full bg-neutral-200/80 overflow-hidden"
+            role="presentation"
+            aria-hidden="true"
+          >
+            <div
+              className="h-full rounded-full bg-primary/70 transition-[left,width] duration-150 ease-out relative"
+              style={{
+                width: `${scrollProgress.thumbWidthPct}%`,
+                marginLeft: `${scrollProgress.thumbLeftPct}%`,
+              }}
+            />
+          </div>
+        </div>
       </div>
     </section>
-
   );
 };
 
