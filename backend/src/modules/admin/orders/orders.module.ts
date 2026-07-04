@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrdersTbl } from './entity/orders.tbl';
 import { ProductsTbl } from '../products/entity/products.tbl';
@@ -17,7 +17,7 @@ import { PaymongoModule } from '../../general/paymongo/paymongo.module';
     InvoicesModule,
     NotificationsModule,
     AuthModule,
-    PaymongoModule,
+    forwardRef(() => PaymongoModule),
   ],
   controllers: [OrdersController, PaymentProofController],
   providers: [OrdersService],

@@ -1,7 +1,7 @@
 export class PlaceOrderResponse {
-  success: boolean;
-  orderNumber: string;
-  message: string;
-  orderId?: number;
-  createdAt?: Date;
+  declare success: boolean;
+  declare orderNumber: string;
+  declare message: string;
+  declare orderId?: number;
+  declare createdAt?: Date;
 }

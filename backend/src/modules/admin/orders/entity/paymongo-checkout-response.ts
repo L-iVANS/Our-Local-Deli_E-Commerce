@@ -1,6 +1,6 @@
 export class PaymongoCheckoutResponse {
-  success: boolean;
-  paymentIntentId: string;
-  checkoutUrl: string;
-  message: string;
+  declare success: boolean;
+  declare paymentIntentId: string;
+  declare checkoutUrl: string;
+  declare message: string;
 }

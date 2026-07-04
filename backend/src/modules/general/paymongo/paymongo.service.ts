@@ -1,6 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+// src/modules/general/paymongo/paymongo.service.ts
+import { Injectable, Logger, forwardRef, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
+import { OrdersService } from '../../admin/orders/orders.service';
 
 interface PaymentIntentPayload {
   amount: number;
@@ -44,9 +46,32 @@ export class PaymongoService {
   private readonly secretKey: string;
   private readonly publicKey: string;
 
-  constructor(private readonly configService: ConfigService) {
-    this.secretKey = this.configService.get<string>('PAYMONGO_SECRET_KEY') || '';
-    this.publicKey = this.configService.get<string>('PAYMONGO_PUBLIC_KEY') || '';
+  constructor(
+    private readonly configService: ConfigService,
+    // ✅ Inject OrdersService with forwardRef to break circular dep
+    @Inject(forwardRef(() => OrdersService))
+    private readonly ordersService: OrdersService,
+  ) {
+    this.secretKey =
+      this.configService.get<string>('PAYMONGO_SECRET_KEY') || '';
+    this.publicKey =
+      this.configService.get<string>('PAYMONGO_PUBLIC_KEY') || '';
+
+    // Fail fast on misconfiguration
+    if (!this.secretKey) {
+      throw new Error(
+        '[PaymongoService] PAYMONGO_SECRET_KEY is not set. Add it to .env and restart.',
+      );
+    }
+    if (
+      !this.secretKey.startsWith('sk_test_') &&
+      !this.secretKey.startsWith('sk_live_')
+    ) {
+      throw new Error(
+        `[PaymongoService] PAYMONGO_SECRET_KEY looks invalid: "${this.secretKey.slice(0, 10)}...". Must start with sk_test_ or sk_live_.`,
+      );
+    }
+
     const apiUrl =
       this.configService.get<string>('PAYMONGO_API_URL') ||
       'https://api.paymongo.com/v1';
@@ -61,8 +86,11 @@ export class PaymongoService {
       },
       timeout: 30000,
     });
+
+    this.logger.log('PaymongoService initialized ✓');
   }
 
+  // ─── CHECKOUT SESSION (hosted checkout page) ────────────────────
   async createCheckoutLink(
     amount: number,
     orderId: number,
@@ -84,19 +112,20 @@ export class PaymongoService {
       if (!amount || amount <= 0 || isNaN(amount)) {
         throw new Error(`Invalid amount: ${amount}`);
       }
-
       if (amountInCentavos <= 0 || isNaN(amountInCentavos)) {
         throw new Error(`Invalid amount in centavos: ${amountInCentavos}`);
       }
 
       const successUrl =
         this.configService.get<string>('PAYMONGO_CHECKOUT_SUCCESS_URL') ||
-        'http://localhost:3000/b2b/checkout/success';
+        'http://localhost:3000/consumer/order-success';
       const failedUrl =
         this.configService.get<string>('PAYMONGO_CHECKOUT_FAILED_URL') ||
-        'http://localhost:3000/b2b/checkout/failed';
+        'http://localhost:3000/consumer/order-failed';
 
-      const successUrlWithParams = `${successUrl}?orderId=${orderId}${orderNumber ? `&orderNumber=${encodeURIComponent(orderNumber)}` : ''}${grandTotal ? `&grandTotal=${grandTotal}` : ''}`;
+      const successUrlWithParams = `${successUrl}?orderId=${orderId}${
+        orderNumber ? `&orderNumber=${encodeURIComponent(orderNumber)}` : ''
+      }${grandTotal ? `&grandTotal=${grandTotal}` : ''}`;
       const failedUrlWithParams = `${failedUrl}?orderId=${orderId}`;
 
       const payload = {
@@ -116,6 +145,11 @@ export class PaymongoService {
             success_url: successUrlWithParams,
             cancel_url: failedUrlWithParams,
             show_line_items: true,
+            // ✅ CRITICAL — webhook uses this to know which order to update
+            metadata: {
+              orderId: String(orderId),
+              orderNumber: orderNumber ?? '',
+            },
           },
         },
       };
@@ -135,7 +169,6 @@ export class PaymongoService {
       this.logger.debug(
         `Full Checkout Link Response: ${JSON.stringify(response.data)}`,
       );
-      this.logger.debug(`Checkout URL: ${checkoutUrl}`);
 
       if (!checkoutUrl) {
         this.logger.error(
@@ -172,6 +205,7 @@ export class PaymongoService {
     }
   }
 
+  // ─── PAYMENT INTENT (kept for backward compat) ──────────────────
   async createPaymentIntent(
     amount: number,
     orderId: number,
@@ -191,17 +225,16 @@ export class PaymongoService {
       if (!amount || amount <= 0 || isNaN(amount)) {
         throw new Error(`Invalid amount: ${amount}`);
       }
-
       if (amountInCentavos <= 0 || isNaN(amountInCentavos)) {
         throw new Error(`Invalid amount in centavos: ${amountInCentavos}`);
       }
 
       const successUrl =
         this.configService.get<string>('PAYMONGO_CHECKOUT_SUCCESS_URL') ||
-        'http://localhost:3000/b2b/checkout/success';
+        'http://localhost:3000/consumer/order-success';
       const failedUrl =
         this.configService.get<string>('PAYMONGO_CHECKOUT_FAILED_URL') ||
-        'http://localhost:3000/b2b/checkout/failed';
+        'http://localhost:3000/consumer/order-failed';
 
       const payload: PaymentIntentPayload = {
         amount: amountInCentavos,
@@ -215,15 +248,7 @@ export class PaymongoService {
         },
       };
 
-      this.logger.debug(
-        `PayMongo API Request Payload: ${JSON.stringify(payload)}`,
-      );
-
-      const wrappedPayload = {
-        data: {
-          attributes: payload,
-        },
-      };
+      const wrappedPayload = { data: { attributes: payload } };
 
       this.logger.debug(
         `PayMongo API Wrapped Payload: ${JSON.stringify(wrappedPayload)}`,
@@ -240,12 +265,6 @@ export class PaymongoService {
       this.logger.log(
         `Payment Intent created: ${data.id} for Order #${orderId}, Amount: PHP ${amount}`,
       );
-
-      this.logger.debug(
-        `Full PayMongo Response: ${JSON.stringify(response.data)}`,
-      );
-      this.logger.debug(`Extracted data: ${JSON.stringify(data)}`);
-      this.logger.debug(`Checkout URL: ${checkoutUrl}`);
 
       if (!checkoutUrl) {
         this.logger.error(
@@ -307,6 +326,61 @@ export class PaymongoService {
         `PayMongo: Failed to retrieve payment intent - ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
+  }
+
+  // ─── RETRIEVE CHECKOUT SESSION (used by manual verify fallback) ─
+  async retrieveCheckoutSession(checkoutSessionId: string): Promise<any> {
+    try {
+      const response = await this.client.get<{ data: any }>(
+        `/checkout_sessions/${checkoutSessionId}`,
+      );
+      return response.data.data;
+    } catch (error) {
+      this.logger.error(
+        `Failed to retrieve Checkout Session ${checkoutSessionId}:`,
+        error instanceof Error ? error.message : String(error),
+      );
+      throw new Error(
+        `PayMongo: Failed to retrieve checkout session - ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
+  }
+
+  // ─── WEBHOOK HANDLER ────────────────────────────────────────────
+  /**
+   * Called from PaymongoController.handleWebhook when PayMongo
+   * confirms a payment. Extracts real transaction details and
+   * writes them to the order via OrdersService.
+   */
+  async handlePaymentPaid(eventData: any): Promise<void> {
+    const attributes = eventData?.attributes;
+    const metadata = attributes?.metadata ?? {};
+
+    const orderId = Number(metadata.orderId);
+    if (!orderId || isNaN(orderId)) {
+      this.logger.warn(
+        `Webhook received without valid orderId. Metadata: ${JSON.stringify(metadata)}`,
+      );
+      return;
+    }
+
+    const paymongoTransactionId = eventData.id;
+    const payment = attributes?.payments?.[0]?.attributes;
+    const amountInCentavos = payment?.amount ?? attributes?.amount_total ?? 0;
+    const paymentMethod =
+      payment?.source?.type ?? attributes?.payment_method_used;
+    const paidAt = payment?.paid_at;
+
+    this.logger.log(
+      `Webhook: updating order #${orderId}, txn=${paymongoTransactionId}, amount=${amountInCentavos / 100}, method=${paymentMethod}`,
+    );
+
+    await this.ordersService.updatePaymongoDetails(orderId, {
+      paymongoTransactionId,
+      paymongoAmount: amountInCentavos / 100,
+      paymongoPaymentMethod: paymentMethod,
+      paymongoTimestamp: paidAt ? new Date(paidAt * 1000) : new Date(),
+    });
   }
 
   getPublicKey(): string {

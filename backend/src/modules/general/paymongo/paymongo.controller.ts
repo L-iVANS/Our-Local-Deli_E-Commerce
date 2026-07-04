@@ -6,6 +6,8 @@ import {
   Logger,
   Post,
   Query,
+  HttpCode,
+  Headers,
 } from '@nestjs/common';
 import { PaymongoService } from './paymongo.service';
 
@@ -38,7 +40,6 @@ export class PaymongoController {
       if (!orderId || !amount) {
         throw new BadRequestException('orderId and amount are required');
       }
-
       if (amount <= 0) {
         throw new BadRequestException('amount must be greater than 0');
       }
@@ -47,7 +48,8 @@ export class PaymongoController {
         `Creating checkout for Order #${orderId}, Amount: PHP ${amount}`,
       );
 
-      const result = await this.paymongoService.createPaymentIntent(
+      // ✅ FIXED: was createPaymentIntent (wrong), now createCheckoutLink (correct)
+      const result = await this.paymongoService.createCheckoutLink(
         amount,
         orderId,
         description || `Order #${orderId}`,
@@ -55,7 +57,7 @@ export class PaymongoController {
 
       return {
         success: true,
-        paymentIntentId: result.paymentIntentId,
+        paymentIntentId: result.checkoutId, // checkoutId maps to this field
         checkoutUrl: result.checkoutUrl,
       };
     } catch (error: any) {
@@ -63,6 +65,15 @@ export class PaymongoController {
         'Checkout creation failed:',
         error instanceof Error ? error.message : String(error),
       );
+
+      // Surface PayMongo API error details to logs
+      if (error?.response?.data) {
+        this.logger.error(
+          'PayMongo API error:',
+          JSON.stringify(error.response.data, null, 2),
+        );
+      }
+
       throw error;
     }
   }
@@ -96,6 +107,27 @@ export class PaymongoController {
       );
       throw error;
     }
+  }
+
+  @Post('webhook')
+  @HttpCode(200)   // ← PayMongo requires 200, not 201
+  async handleWebhook(
+    @Body() payload: any,
+    @Headers('paymongo-signature') signature: string,
+  ) {
+    this.logger.log(`Webhook received: ${payload?.data?.attributes?.type}`);
+
+    // Optional but recommended: verify signature
+    // this.paymongoService.verifyWebhookSignature(payload, signature);
+
+    const eventType = payload?.data?.attributes?.type;
+    const eventData = payload?.data?.attributes?.data;
+
+    if (eventType === 'checkout_session.payment.paid') {
+      await this.paymongoService.handlePaymentPaid(eventData);
+    }
+
+    return { received: true };
   }
 
   @Get('public-key')

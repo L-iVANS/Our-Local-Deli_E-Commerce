@@ -4,6 +4,8 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  forwardRef,        // ✅ add
+  Inject,            // ✅ add
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
@@ -37,6 +39,7 @@ export class OrdersService {
     private readonly invoicesService: InvoicesService,
     private readonly mailerService: MailerService,
     private readonly notificationsService: NotificationsService,
+    @Inject(forwardRef(() => PaymongoService))
     private readonly paymongoService: PaymongoService,
   ) {}
 
@@ -1153,6 +1156,58 @@ Total: PHP ${placeOrderDto.grandTotal?.toLocaleString()}`,
         err as Error,
       );
     }
+
+    return updatedOrder;
+  }
+  async updatePaymongoDetails(
+    orderId: number,
+    details: {
+      paymongoTransactionId: string;
+      paymongoAmount: number;
+      paymongoPaymentMethod?: string;
+      paymongoTimestamp: Date;
+    },
+  ): Promise<OrdersTbl> {
+    const { targetOrder, groupedOrders } =
+      await this.getOrderGroupFromOrderId(orderId);
+
+    for (const groupedOrder of groupedOrders) {
+      groupedOrder.paymongoTransactionId = details.paymongoTransactionId;
+      groupedOrder.paymongoAmount = details.paymongoAmount;
+      groupedOrder.paymongoPaymentMethod = details.paymongoPaymentMethod;
+      groupedOrder.paymongoTimestamp = details.paymongoTimestamp;
+      groupedOrder.paymentStatus = 'PAID';
+
+      // Only advance status if it hasn't already been advanced
+      if (
+        groupedOrder.status === OrderStatus.PENDING_APPROVAL ||
+        groupedOrder.status === OrderStatus.READY_FOR_BILLING
+      ) {
+        groupedOrder.status = OrderStatus.AWAITING_PAYMENT_VERIFICATION;
+      }
+    }
+
+    const updatedOrders = await this.ordersRepository.save(groupedOrders);
+    const updatedOrder =
+      updatedOrders.find((o) => o.orderId === targetOrder.orderId) ??
+      updatedOrders[0];
+
+    // Also mark the invoice as paid
+    try {
+      await this.invoicesService.payInvoiceByOrderId(orderId);
+      this.logger.log(
+        `Invoice marked PAID via PayMongo webhook for Order #${orderId}`,
+      );
+    } catch (err) {
+      this.logger.error(
+        `Failed to update invoice for Order #${orderId}:`,
+        err as Error,
+      );
+    }
+
+    this.logger.log(
+      `Order #${orderId} paymongo fields updated: txn=${details.paymongoTransactionId}, amount=${details.paymongoAmount}, method=${details.paymongoPaymentMethod}`,
+    );
 
     return updatedOrder;
   }
