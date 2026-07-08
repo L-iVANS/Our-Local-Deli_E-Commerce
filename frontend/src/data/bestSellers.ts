@@ -17,7 +17,7 @@ export const bestSellersData: BestSeller[] = [
   {
     productId: 1,
     name: "USDA Angus Tapa",
-    image: "/assets/products/usda-angus-tapa.jpg",
+    image: "/assets/AngusTapa.JPG",
     price: 480,
     weight: "350g",
     badges: [
@@ -35,7 +35,7 @@ export const bestSellersData: BestSeller[] = [
   {
     productId: 2,
     name: "Mattie's Favorite Premium Xiao Long Bao",
-    image: "/assets/products/xiao-long-bao.jpg",
+    image: "/assets/Premium Xiao Long Bao.png",
     price: 360,
     weight: "12 pcs / pack",
     badges: [
@@ -49,7 +49,7 @@ export const bestSellersData: BestSeller[] = [
   {
     productId: 3,
     name: "Aling Lucing Sisig",
-    image: "/assets/products/aling-lucing-sisig.jpg",
+    image: "/assets/sisig-lucing.png",
     price: 350,
     weight: "300g",
     badges: [

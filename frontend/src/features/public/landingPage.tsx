@@ -2,7 +2,8 @@ import Header from "@/src/components/layout/header/Header";
 import Footer from "@/src/components/layout/Footer";
 import HeroSectionToggle from "@/src/features/public/components/sections/hero/HeroSectionToggle";
 import CategoryStrip from "@/src/features/public/components/sections/CategoryStrip";
-import FeaturedSectionToggle from "@/src/features/public/components/sections/featured/FeaturedSectionToggle";
+// import FeaturedSectionToggle from "@/src/features/public/components/sections/featured/FeaturedSectionToggle";
+import BestSeller from "@/src/features/public/components/sections/BestSeller";
 import ProductCatalog from "@/src/features/public/components/sections/ProductsCatalog";
 // import CategoryCarouselSection from "@/src/features/public/components/sections/CategoryCarouselSection";
 import ReviewsSection from "@/src/features/public/components/sections/ReviewSection";
@@ -25,8 +26,9 @@ export default function Home() {
       <Header />
       <HeroSectionToggle data={heroData} />
       <CategoryStrip categories={categoriesData} />
-      <FeaturedSectionToggle />
-      <ProductCatalog products={productsData} />
+      <BestSeller />
+      {/* <FeaturedSectionToggle /> */}
+      {/* <ProductCatalog products={productsData} /> */}
 
       {/* Uncomment if needed for cards or social media videos */}
       {/* {categoryHighlightsData.map((highlight) => (
@@ -41,9 +43,9 @@ export default function Home() {
         />
       ))} */}
 
-      <OmegaStories stories={blogsData} />
+      <OmegaStories />
       <ReviewsSection reviews={reviewsData} />
-      <SocialsSection data={socialAccountsData} />
+      {/* <SocialsSection data={socialAccountsData} /> */}
       <AboutUsSection />
       <ContactSection />
       <Footer />
