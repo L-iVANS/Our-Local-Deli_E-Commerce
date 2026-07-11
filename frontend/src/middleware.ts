@@ -66,8 +66,8 @@ function getRoleFromRequest(request: NextRequest): UserRole | null {
 function redirectByRole(request: NextRequest, role: UserRole): NextResponse {
   const redirectMap: Record<UserRole, string> = {
     admin: "/admin/products",
-    partner: "/consumer/home",   // ✅ partner & consumer share routes
-    consumer: "/consumer/home",
+    partner: "/",   // ✅ partner & consumer share routes
+    consumer: "/",   // ✅ consumer & partner share routes
   };
 
   const destination = redirectMap[role];

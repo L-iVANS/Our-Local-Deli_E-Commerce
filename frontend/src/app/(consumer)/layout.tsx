@@ -11,7 +11,9 @@ export default function ConsumerLayout({
       <Header />
 
       {/* Add pt-[160px] here. Adjust the pixel value until it perfectly clears the header */}
-      <main className="min-h-screen pt-[140px] sm:pt-[180px]">{children}</main>
+      <main className="pt-[var(--header-height-mobile)] lg:pt-[var(--header-height-desktop)]">
+        {children}
+      </main>
 
       <Footer />
     </div>

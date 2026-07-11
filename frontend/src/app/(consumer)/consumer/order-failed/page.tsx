@@ -14,7 +14,7 @@ function OrderFailedContent() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <CheckoutFailedContent
         orderId={orderId}
-        onBackHome={() => router.push("/consumer/home")}
+        onBackHome={() => router.push("/")}
         onRetryPayment={() => router.push(`/consumer/checkout?retry=${orderId}`)}
       />
     </div>

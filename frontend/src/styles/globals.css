@@ -30,6 +30,9 @@ THEME QUICK EDITS
   --background: #F4F4F0;
   --foreground: #0A3A2B;
   --primary: #0A3A2B;
+
+    --header-height-mobile: 88px;
+  --header-height-desktop: 150px;
 }
 
 html {

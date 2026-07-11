@@ -63,8 +63,8 @@ function getRoleFromCookie(): string | null {
 
 function getRedirectPathByRole(role: string | null): string {
   if (role === "admin") return "/admin/dashboard";
-  if (role === "partner") return "/consumer/home";
-  if (role === "consumer") return "/consumer/home";
+  if (role === "partner") return "/";
+  if (role === "consumer") return "/";
   return "/login"; // fallback
 }
 
